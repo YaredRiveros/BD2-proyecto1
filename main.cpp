@@ -2,63 +2,48 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "record.h"
+//#include "record.h"
 #include "sequential.h"
 using namespace std;
 
-vector<Record> read_csv(const string& file_path) {
-    ifstream file(file_path);
-    string line;
-    vector<Record> records;
+class MyRecord {
+public:
+    int key;
+    int value;
+    int nextDel;
+    char ref;
 
-    if (file.is_open()) {
-        getline(file, line); // Leer la primera línea y descartarla (encabezados)
+    MyRecord() : key(-1), value(-1), nextDel(-1), ref(INVALID) {}
+    MyRecord(int k, int v) : key(k), value(v), nextDel(-1), ref(INVALID) {}
 
-        while (getline(file, line)) {
-            stringstream ss(line);
-            string token;
+    int get_key() const { return key; }
+    bool less_than_key(int k) const { return key < k; }
+    bool equal_key(int k) const { return key == k; }
+    bool greater_or_equal(int k) const { return key >= k; }
+    bool less_or_equal(int k) const { return key <= k; }
 
-            vector<string> row;
-            while (getline(ss, token, ',')) {
-                row.push_back(token);
-            }
-
-            Record record(row[0], row[1], row[2], row[3], row[4]);
-            records.push_back(record);
-        }
-
-        file.close();
-    } else {
-        cerr << "No se pudo abrir el archivo." << endl;
-    }
-
-    return records;
-}
+    bool operator<(const MyRecord& other) const { return key < other.key; }
+};
 
 int main() {
-    string csv_file_path = "data_chiqui.csv"; // Reemplaza "data-proyecto1.csv" con el nombre de tu archivo .csv
-    vector<Record> records = read_csv(csv_file_path);
+    SequentialFile<MyRecord, int> seqFile("datafile.bin", "auxfile.bin");
 
-    // Crear e inicializar un objeto de la clase SequentialFile
-    SequentialFile<Record, const char*> mySequentialFile("mySequentialFile2.bin", "dummie2.bin");
+    // Inserta registros en el archivo secuencial
+    cout << "Inserción de registros" << endl;
+    seqFile.add_record(MyRecord(1, 100));
+    seqFile.add_record(MyRecord(2, 200));
+    seqFile.add_record(MyRecord(3, 300));
 
-    // Insertar los registros en la clase SequentialFile
-    for (const auto &record : records) {
-        string key_str = record.get_key();
-        mySequentialFile.add_record(record);
+    // Busca registros por clave
+    cout << "Búsqueda de registros" << endl;
+    auto records = seqFile.search_record(2);
+    for (const auto& record : records) {
+        std::cout << "Record found: key=" << record.key << ", value=" << record.value << std::endl;
     }
 
-    // Buscar un registro en el SequentialFile
-    string codigo = "202208710"; // Reemplaza esto con un código para buscar
-    vector<Record> found_records = mySequentialFile.search_record(codigo.c_str());
-
-    if (!found_records.empty()) {
-        for (const auto& found_record : found_records) {
-            cout << "Registro encontrado: " << found_record.nombre << ", " << found_record.apellido << endl;
-        }
-    } else {
-        cout << "Registro no encontrado." << endl;
-    }
+    // Elimina un registro por clave
+    cout << "Eliminación de registro 2" << endl;
+    seqFile.remove_record(2);
 
     return 0;
 }

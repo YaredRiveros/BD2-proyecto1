@@ -14,7 +14,7 @@
 
 using namespace std;
 
-enum FileID {AUXFILE,DATAFILE};
+enum FileID {AUXFILE,DATAFILE}; // 0 para auxFile, 1 para dataFile
 template <class Record, class Key>
 class SequentialFile{
 private:
