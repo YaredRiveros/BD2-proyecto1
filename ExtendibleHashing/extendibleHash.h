@@ -199,7 +199,10 @@ class ExtendibleHash{
 
         indexFile.close();
         // 3. Busco el bucket en el archivo de records
-        ifstream recordsFile(recordsFileName, ios::in | ios::binary | ios::app);
+        ifstream recordsFile;
+        ofstream recordsFile2;
+
+        recordsFile.open(recordsFileName, ios::in | ios::binary);
         if(!recordsFile){
             cout << "Error al abrir el archivo de records" << endl;
             return;
@@ -271,37 +274,36 @@ class ExtendibleHash{
             
         // //5.1 Si no está lleno el bucket, insertar el registro en la primera posición vacía
 
-        ofstream recordsFile3;
-        recordsFile3.open(recordsFileName, ios::out| ios::binary | ios::app);
+        recordsFile2.open(recordsFileName, ios::out | ios::binary);
 
         if(bucket.nRecords<maxRecords){
             cout << "no esta lleno" << endl;
             bucket.records[bucket.nRecords] = record;
             bucket.nRecords++;
-            bucket.localDepth+=3;       //Prueba
-            recordsFile3.seekp(index.pos, ios::beg);
+            // bucket.localDepth+=3;       //Prueba
+            recordsFile2.seekp(index.pos, ios::beg);
 
             cout << "sizeof(Bucket): " << sizeof(Bucket) << endl;
             cout << "IndexPos: " << index.pos << endl;
             cout << "Binario del bucket:" << bucket.binario << endl;
             cout << "Tamaño del bucket luego de la inserción: " << bucket.nRecords << endl;
-            cout << "escribe " << "en " << recordsFile3.tellp() << endl;
-            recordsFile3.write((char*)&bucket, sizeof(Bucket));
+            cout << "escribe " << "en " << recordsFile2.tellp() << endl;
+            recordsFile2.write((char*)&bucket, sizeof(Bucket));
 
             cout << "Tamaño otra vez del bucket luego de la inserción: " << bucket.nRecords << endl;
 
-            recordsFile3.close();
+            recordsFile2.close();
 
-            ifstream recordsFile4(recordsFileName, ios::in | ios::binary | ios::app);
-            Bucket revision;
-            recordsFile4.seekg(index.pos, ios::beg);
-            cout << "reviso el bucket en " << recordsFile4.tellg() << endl;
-            recordsFile4.read((char*)&revision, sizeof(Bucket));
-            cout << "tamaño del bucket revisao: " << revision.nRecords << endl;
-            cout << "Binario del bucket revisao:" << revision.binario << endl;
-            cout << "localDepth revisao: " << revision.localDepth << endl;
+            recordsFile.open(recordsFileName, ios::in | ios::binary);
 
-            recordsFile4.close();
+            recordsFile.seekg(index.pos, ios::beg);
+            cout << "reviso el bucket en " << recordsFile.tellg() << endl;
+            recordsFile.read((char*)&bucket, sizeof(Bucket));
+            cout << "tamaño del bucket revisao: " << bucket.nRecords << endl;
+            cout << "Binario del bucket revisao:" << bucket.binario << endl;
+            cout << "localDepth revisao: " << bucket.localDepth << endl;
+
+            recordsFile.close();
 
             // ifstream recordsFile5(recordsFileName, ios::in | ios::binary | ios::app);
             // cout << "INDEXPOOOOOOS: " << index.pos << endl;
