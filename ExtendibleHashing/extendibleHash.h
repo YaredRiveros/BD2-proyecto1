@@ -223,6 +223,11 @@ class ExtendibleHash{
         printCharArray(bucket.binario, globalDepth);
         cout << endl;    
 
+        //leo los registros del bucket
+        for(int i = 0; i < bucket.nRecords; i++){
+            cout << "ID " << i << ": " << bucket.records[i].id << endl;
+        }
+
         // recordsFile.write((char*)&bucket, sizeof(Bucket));
         // 5. Insertar elemento
         long int posBucket;
@@ -243,26 +248,34 @@ class ExtendibleHash{
             recordsFile.read((char*)&bucket, sizeof(Bucket)); 
         } //si no encontro el registro al final del while, entonces nos quedamos en el ultimo bucket
         // cout << "Tamaño del bucket luego del while: " << bucket.nRecords << endl;
-        // string indexBin(index.binario);
+        string indexBin(index.binario); // indexBin es el binario del indice
+        cout << "Binario: " << indexBin << endl;
+
+        string bucketBin = indexBin.substr(indexBin.length()-bucket.localDepth);  
+        cout << "Binario definitivo: " << bucketBin << endl;
         // bucket.binario = indexBin.substr(indexBin.length()-bucket.localDepth);  //101 -> 3 - 1 = 2 -> desde la pos 2 hasta el final
+        llenarArray(bucket.binario, globalDepth, bucketBin); //uso la funcion para llenar el array con el binario del indice
+        cout << "Binario del bucket: ";
+        printCharArray(bucket.binario, globalDepth);
+
         // cout << "Binario definitivo: " << bucket.binario << endl;
         // //Cuando borro todos los registros de records.bin corre bien hasta acá, pero si tiene datos no funciona :(
             
         // //5.1 Si no está lleno el bucket, insertar el registro en la primera posición vacía
-        // if(bucket.nRecords<maxRecords){
-        //     cout << "no esta lleno" << endl;
-        //     bucket.records[bucket.nRecords] = record;
-        //     bucket.nRecords++;
+        if(bucket.nRecords<maxRecords){
+            cout << "no esta lleno" << endl;
+            bucket.records[bucket.nRecords] = record;
+            bucket.nRecords++;
 
-        //     recordsFile.seekp(index.pos, ios::beg);
-        //     // recordsFile.seekp(0, ios::beg);
-        //     cout << "sizeof(Bucket): " << sizeof(Bucket) << endl;
-        //     cout << "IndexPos: " << index.pos << endl;
-        //     cout << "Binario del bucket:" << bucket.binario << endl;
-        //     cout << "Tamaño del bucket luego de la inserción: " << bucket.nRecords << endl;
-        //     recordsFile.write((char*)&bucket, sizeof(Bucket));
-        //     cout << "ya escribió " << endl;
-        // }
+            recordsFile.seekp(index.pos, ios::beg);
+            // recordsFile.seekp(0, ios::beg);
+            cout << "sizeof(Bucket): " << sizeof(Bucket) << endl;
+            cout << "IndexPos: " << index.pos << endl;
+            cout << "Binario del bucket:" << bucket.binario << endl;
+            cout << "Tamaño del bucket luego de la inserción: " << bucket.nRecords << endl;
+            recordsFile.write((char*)&bucket, sizeof(Bucket));
+            cout << "ya escribió " << endl;
+        }
         // //3. Si está lleno, revisar que el depth local sea menor al global
         // else{
         //     cout  << "else" << endl;
