@@ -18,7 +18,7 @@ struct ejemplo{
 int main(){
     //Crear archivo de lectura y escritura binario
     ofstream file;
-    file.open("ceñora.bin", ios::out | ios::binary);
+    file.open("ceñora.bin", ios::out | ios::binary | ios::app);
     ejemplo ej;
     
     ej.a = 1;
@@ -29,7 +29,7 @@ int main(){
     file.write((char*)&ej, sizeof(ejemplo));
     
     
-    ej.a = 2;
+    ej.a += 2;
     ej.b[0] = 'd';
     ej.b[1] = 'e';
     ej.b[2] = 'f';
@@ -44,13 +44,14 @@ int main(){
 
     //leemos para verificar cambios
     cout << "--Lectura ejemplo1--" << endl;
+    ejemplo ej2;
     file2.seekg(0, ios::beg);
-    file2.read((char*)&ej, sizeof(ejemplo));
-    cout << ej.a << " " << ej.b[0] << ej.b[1] << ej.b[2] << endl;
+    file2.read((char*)&ej2, sizeof(ejemplo));
+    cout << ej2.a << " " << ej2.b[0] << ej2.b[1] << ej2.b[2] << endl;
 
     cout << "--Lectura ejemplo2--" << endl;
-    file2.read((char*)&ej, sizeof(ejemplo));
-    cout << ej.a << " " << ej.b[0] << ej.b[1] << ej.b[2] << endl;
+    file2.read((char*)&ej2, sizeof(ejemplo));
+    cout << ej2.a << " " << ej2.b[0] << ej2.b[1] << ej2.b[2] << endl;
 
     return 0;
 }
