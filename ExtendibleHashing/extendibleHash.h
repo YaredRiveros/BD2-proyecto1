@@ -154,14 +154,14 @@ class ExtendibleHash{
         }
 
         //3. Genero el archivo de records con solo 2 buckets iniciales
-        fstream recordsFile(recordsFileName, ios::out | ios::in | ios::binary | ios::app);
-        if(recordsFile.tellp() == 0){
+        ofstream recordsFile0(recordsFileName, ios::out| ios::binary | ios::app);
+        if(recordsFile0.tellp() == 0){
             Bucket bucket1;
             llenarArray(bucket1.binario, globalDepth, "0");
-            recordsFile.write((char*)&bucket1, sizeof(Bucket));
+            recordsFile0.write((char*)&bucket1, sizeof(Bucket));
             Bucket bucket2;
             llenarArray(bucket2.binario, globalDepth, "1");
-            recordsFile.write((char*)&bucket2, sizeof(Bucket));
+            recordsFile0.write((char*)&bucket2, sizeof(Bucket));
         }
 
         // recordsFile.seekg(0, ios::beg);
@@ -173,7 +173,7 @@ class ExtendibleHash{
         // cout << "Bucket2: " << bucket.binario << endl;
 
         indexFile.close();
-        recordsFile.close();
+        recordsFile0.close();
     }
 
     ~ExtendibleHash(){}
@@ -184,7 +184,7 @@ class ExtendibleHash{
         int hash = record.id % numIndices;     //no se necesita llevar a binario porque el decimal me da el número de índice
         cout << "Hash: " << hash << endl;
         //1. Busco la posición del bucket en el archivo de index
-        fstream indexFile(indexFileName, ios::in | ios::out | ios::binary | ios::app);
+        ifstream indexFile(indexFileName, ios::in | ios::binary | ios::app);
         if(!indexFile){
             cout << "Error al abrir el archivo de index" << endl;
             return;
@@ -196,8 +196,10 @@ class ExtendibleHash{
         cout << "Cada index pesa: " << sizeof(Indice) << endl;
         cout << "Estamos en la pos " << indexFile.tellg() << " de index.bin" << endl;
         cout << "Posicion a la que apunta el indice " << index.pos << endl;
+
+        indexFile.close();
         // 3. Busco el bucket en el archivo de records
-        fstream recordsFile(recordsFileName, ios::in | ios::out | ios::binary | ios::app);
+        ifstream recordsFile(recordsFileName, ios::in | ios::binary | ios::app);
         if(!recordsFile){
             cout << "Error al abrir el archivo de records" << endl;
             return;
@@ -213,11 +215,13 @@ class ExtendibleHash{
         // recordsFile.write((char*)&bucket, sizeof(Bucket));
 
         recordsFile.seekg(index.pos, ios::beg);
-        cout << "Tamaño de un bucket: " << sizeof(Bucket) << endl;
+        cout << "Tamaño de todo bucket: " << sizeof(Bucket) << endl;
         cout << "Posicion del bucket: " << index.pos << endl;
         // 4. Leo el bucket
         recordsFile.read((char*)&bucket, sizeof(Bucket));
-        cout << "Tamaño bucket: " << bucket.nRecords << endl;
+        cout << "Tamaño bucket despues de leer: " << bucket.nRecords << endl;
+
+        recordsFile.close();
 
         cout << "Segundo binario:" << endl;
         printCharArray(bucket.binario, globalDepth);
@@ -232,21 +236,25 @@ class ExtendibleHash{
         // 5. Insertar elemento
         long int posBucket;
         cout << "aca" << endl;
-        while(bucket.posNextBucket != -1){ //Mientras haya buckets encadenados
-            cout << "bucleee" << endl;   //Error: cuando el maximo del array "records" es Maxrecords, entra a bucle infinito
-            cout << "Tamaño del bucketWhile: " << bucket.nRecords << endl;
-            //Verificamos que no se encuentre el registro en el bucket
-            for(int i = 0; i < bucket.nRecords; i++){
-                if(bucket.records[i].id == record.id){
-                    cout << "El registro ya existe" << endl;
-                    return;
-                }
-            }
-            //Si no se encuentra el registro, se pasa al siguiente bucket
-            recordsFile.seekg(bucket.posNextBucket, ios::beg);
-            posBucket = recordsFile.tellg();
-            recordsFile.read((char*)&bucket, sizeof(Bucket)); 
-        } //si no encontro el registro al final del while, entonces nos quedamos en el ultimo bucket
+        
+        // ifstream recordsFile2(recordsFileName, ios::in | ios::binary | ios::app);
+        // while(bucket.posNextBucket != -1){ //Mientras haya buckets encadenados
+        //     cout << "bucleee" << endl;   //Error: cuando el maximo del array "records" es Maxrecords, entra a bucle infinito
+        //     cout << "Tamaño del bucketWhile: " << bucket.nRecords << endl;
+        //     //Verificamos que no se encuentre el registro en el bucket
+        //     for(int i = 0; i < bucket.nRecords; i++){
+        //         if(bucket.records[i].id == record.id){
+        //             cout << "El registro ya existe" << endl;
+        //             return;
+        //         }
+        //     }
+        //     //Si no se encuentra el registro, se pasa al siguiente bucket
+        //     recordsFile2.seekg(bucket.posNextBucket, ios::beg);
+        //     posBucket = recordsFile2.tellg();
+        //     recordsFile2.read((char*)&bucket, sizeof(Bucket)); 
+        // } //si no encontro el registro al final del while, entonces nos quedamos en el ultimo bucket
+        // recordsFile2.close();
+        
         // cout << "Tamaño del bucket luego del while: " << bucket.nRecords << endl;
         string indexBin(index.binario); // indexBin es el binario del indice
         cout << "Binario: " << indexBin << endl;
@@ -262,19 +270,50 @@ class ExtendibleHash{
         // //Cuando borro todos los registros de records.bin corre bien hasta acá, pero si tiene datos no funciona :(
             
         // //5.1 Si no está lleno el bucket, insertar el registro en la primera posición vacía
+
+        ofstream recordsFile3;
+        recordsFile3.open(recordsFileName, ios::out| ios::binary | ios::app);
+
         if(bucket.nRecords<maxRecords){
             cout << "no esta lleno" << endl;
             bucket.records[bucket.nRecords] = record;
             bucket.nRecords++;
+            bucket.localDepth+=3;       //Prueba
+            recordsFile3.seekp(index.pos, ios::beg);
 
-            recordsFile.seekp(index.pos, ios::beg);
-            // recordsFile.seekp(0, ios::beg);
             cout << "sizeof(Bucket): " << sizeof(Bucket) << endl;
             cout << "IndexPos: " << index.pos << endl;
             cout << "Binario del bucket:" << bucket.binario << endl;
             cout << "Tamaño del bucket luego de la inserción: " << bucket.nRecords << endl;
-            recordsFile.write((char*)&bucket, sizeof(Bucket));
-            cout << "ya escribió " << endl;
+            cout << "escribe " << "en " << recordsFile3.tellp() << endl;
+            recordsFile3.write((char*)&bucket, sizeof(Bucket));
+
+            cout << "Tamaño otra vez del bucket luego de la inserción: " << bucket.nRecords << endl;
+
+            recordsFile3.close();
+
+            ifstream recordsFile4(recordsFileName, ios::in | ios::binary | ios::app);
+            Bucket revision;
+            recordsFile4.seekg(index.pos, ios::beg);
+            cout << "reviso el bucket en " << recordsFile4.tellg() << endl;
+            recordsFile4.read((char*)&revision, sizeof(Bucket));
+            cout << "tamaño del bucket revisao: " << revision.nRecords << endl;
+            cout << "Binario del bucket revisao:" << revision.binario << endl;
+            cout << "localDepth revisao: " << revision.localDepth << endl;
+
+            recordsFile4.close();
+
+            // ifstream recordsFile5(recordsFileName, ios::in | ios::binary | ios::app);
+            // cout << "INDEXPOOOOOOS: " << index.pos << endl;
+            // Bucket aux;
+            // cout << "LEO EL BUCKET RECIEN INSERTADO" << endl;
+            // recordsFile5.seekg(index.pos, ios::beg);
+            // cout << "leemos el bucket en " << recordsFile5.tellg() << endl;
+            // recordsFile5.read((char*)&aux, sizeof(Bucket));
+            // cout << ":v Tamaño del bucket luego de la nueva lectura: " << aux.nRecords << endl;
+            // cout << "Binario del bucket:" << aux.binario << endl;
+            // cout << "localDepth: " << aux.localDepth << endl;
+            // recordsFile5.close();
         }
         // //3. Si está lleno, revisar que el depth local sea menor al global
         // else{
@@ -366,7 +405,6 @@ class ExtendibleHash{
         //     }
         // }
         // //6. Cierro los archivos
-        // indexFile.close();
         // recordsFile.close();
         // cout << "archivos cerrados" << endl;
     }
