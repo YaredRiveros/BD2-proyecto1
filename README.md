@@ -31,7 +31,7 @@ search: busca un registro por su ID, primero en el archivo auxiliar y luego en e
 
 ### Hashing extensible
 
-loading...
+  loading...
 
 ## Funciones implementadas:
 
@@ -48,9 +48,10 @@ Después de cargar el archivo CSV, el programa presentará una interfaz de menú
 
 ## Compilación y ejecución
 
-loading..
+  loading...
 
 ## Dependencias
+
 C++17 o posterior
 
 ## Licencia
