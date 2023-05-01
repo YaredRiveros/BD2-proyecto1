@@ -21,9 +21,12 @@ En esta implementación, hemos trabajado en las siguientes funciones:
 
 `insertRecord`: inserta un registro en el archivo principal o auxiliar según las condiciones especificadas.
 search: busca un registro por su ID, primero en el archivo auxiliar y luego en el archivo principal. Retorna un vector con todos los registros que tienen la ID especificada.
+
 `deleteRecord`: elimina todos los registros con la ID especificada en el archivo principal.
+
 `mergeFiles`: fusiona y reordena el archivo principal y auxiliar cuando se alcanza el límite predefinido de registros en el archivo auxiliar.
-searchRange: busca todos los registros cuyas ID estén dentro de un rango especificado.
+
+`searchRange`: busca todos los registros cuyas ID estén dentro de un rango especificado.
 
 
 ### Hashing extensible
@@ -33,7 +36,9 @@ loading...
 ## Funciones implementadas:
 
 `search`: función para buscar registros por su ID.
+
 `delete`: función para eliminar registros por su ID.
+
 `searchRange`: función para buscar registros dentro de un rango de ID.
 
 ## Uso
@@ -45,9 +50,9 @@ Después de cargar el archivo CSV, el programa presentará una interfaz de menú
 
 loading..
 
-Dependencias
+## Dependencias
 C++17 o posterior
 
-Licencia
+## Licencia
 
 @LaFe
