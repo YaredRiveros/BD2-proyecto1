@@ -9,6 +9,11 @@ Proyecto 1 del curso de Base de datos 2 en UTEC
 
 ---
 
+## Introducción
+Nuestr objetivo es crear desde cero 2 técnicas de gestión de bases de datos: Sequential File y Extendible Hashing. Luego, realizar una comparación de ambas técnicas en función de accesos a memoria y tiempo de ejecución de sus algoritmos de búsqueda e inserción. Se espera que la técnica Extendible Hashing tenga más accesos a memoria que el Sequential File, pero que sus operación de búsqueda e inserción tomen tomen menos tiempo en ejecutarse.
+
+Para las pruebas, crearemos nuestro propio dataset, que contiene los siguientes atributos: id, nombre apellidos, ciclo, carrera y codigo de los alumnos de UTEC.
+
 ## Técnicas utilizadas
 
 Este proyecto presenta dos implementaciones de almacenamiento y búsqueda de registros: archivos secuenciales ordenados y hashing extensible. El usuario puede seleccionar la implementación que desea utilizar después de cargar el archivo CSV. Las operaciones disponibles para ambas implementaciones incluyen buscar, eliminar y buscar por rango.
@@ -17,7 +22,7 @@ Este proyecto presenta dos implementaciones de almacenamiento y búsqueda de reg
 
 La implementación de archivos secuenciales ordenados utiliza dos archivos: un archivo principal y un archivo auxiliar. Los registros se insertan en el archivo principal de manera ordenada, mientras que el archivo auxiliar se utiliza para agregar nuevos registros que no encajan en el orden actual. Cuando el archivo auxiliar alcanza un límite predefinido de registros, los dos archivos se fusionan y se vuelven a ordenar.
 
-En esta implementación, hemos trabajado en las siguientes funciones:
+#### Funciones implementadas:
 
 `insertRecord`: inserta un registro en el archivo principal o auxiliar según las condiciones especificadas.
 search: busca un registro por su ID, primero en el archivo auxiliar y luego en el archivo principal. Retorna un vector con todos los registros que tienen la ID especificada.
@@ -33,7 +38,7 @@ search: busca un registro por su ID, primero en el archivo auxiliar y luego en e
 
 Nuestra implementación utiliza 2 archivos: records.bin (almacena los buckets que a su vez almacenan records) e index.bin (almacena los índices que me permiten saber la posición de los buckets en records.bin).
 
-## Funciones implementadas:
+#### Funciones implementadas:
 
 La complejidad de todas estas operaciones es O(k), donde k es la cantidad máxima de encadenamientos.
 
@@ -48,6 +53,19 @@ La complejidad de todas estas operaciones es O(k), donde k es la cantidad máxim
 `Delete`: función para eliminar registros por su ID. Primero, realiza el mismo proceso descrito en la búsqueda. Luego, una vez encontrado el bucket que contiene el record, lo elimina del bucket.
 
 *Nota: EL range search no es soportado por esta técnica*
+
+#### Complejidad (accesos a memoria secundaria)
+
+`Insert`: 4 + #encadenamientos + 2*#indices
+
+`Search`: 2 + #encadenamientos 
+
+`Delete`: 3 + #encadenamientos
+
+
+## Resultados experimentales
+
+  loading...
 
 ## Uso
 
