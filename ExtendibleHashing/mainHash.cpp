@@ -64,6 +64,36 @@ int main(){
     cout << "---Inserción 15---" << endl;
     eh.insertRecord(Record(65, "Encadenadito", "Cardenas", 1, "Industrial", 202110299));
 
+    cout << "---Inserción 16---" << endl;
+    eh.insertRecord(Record(73, "nombre26", "apellido26", 2, "carrera8", 2));
+
+    cout << "---Inserción 17---" << endl;
+    eh.insertRecord(Record(81, "nombre27", "apellido27", 2, "carrera9", 2));
+
+    cout << "---Inserción 18---" << endl;
+    eh.insertRecord(Record(89, "nombre28", "apellido28", 2, "carrera10", 2));
+
+    cout << "---Inserción 19---" << endl;
+    eh.insertRecord(Record(97, "nombre29", "apellido29", 2, "carrera11", 2));
+
+    cout << "---Inserción 20---" << endl;
+    eh.insertRecord(Record(105, "nombre30", "apellido30", 2, "carrera12", 2));
+
+    cout << "---Inserción 21---" << endl;
+    eh.insertRecord(Record(113, "nombre31", "apellido31", 2, "carrera13", 2));
+
+    cout << "---Inserción 22---" << endl;
+    eh.insertRecord(Record(121, "nombre32", "apellido32", 2, "carrera14", 2));
+
+    cout << "---Inserción 23---" << endl;
+    eh.insertRecord(Record(129, "nombre33", "apellido33", 2, "carrera15", 2));
+
+    cout << "---Inserción 24---" << endl;
+    eh.insertRecord(Record(137, "nombre34", "apellido34", 2, "carrera16", 2));
+
+    cout << "---Inserción 25---" << endl;
+    eh.insertRecord(Record(145, "nombre35", "apellido35", 2, "carrera17", 2));
+
 
     cout << "Lectura de datos" << endl;
     ifstream file2;
@@ -82,74 +112,74 @@ int main(){
     }
     file2.close();
 
-    // cout << "\tLectura de record no encadenado" << endl;
-    // Record r = eh.searchRecord(1);
-    // r.display();
+    cout << "\tLectura de record no encadenado" << endl;
+    Record r = eh.searchRecord(1);
+    r.display();
 
 
-    // cout << "\tLectura de record encadenado" << endl;
-    // Record r2 = eh.searchRecord(65);
-    // r2.display();
+    cout << "\tLectura de record encadenado" << endl;
+    Record r2 = eh.searchRecord(65);
+    r2.display();
 
 
-    // cout << "\tLectura de un record que no se encuentra" << endl;
-    // Record r3 = eh.searchRecord(100);
-    // r3.display();   
+    cout << "\tLectura de un record que no se encuentra" << endl;
+    Record r3 = eh.searchRecord(100);
+    r3.display();   
 
 
-    // cout << "\tEliminación de un record que sí se encuentra" << endl;
-    // eh.deleteRecord(1);
+    cout << "\tEliminación de un record que sí se encuentra" << endl;
+    eh.deleteRecord(1);
 
-    // cout << "\tBusco el record eliminado" << endl;
-    // Record r4 = eh.searchRecord(1);
-    // r4.display();
+    cout << "\tBusco el record eliminado" << endl;
+    Record r4 = eh.searchRecord(1);
+    r4.display();
 
-    int opcion;
-    while(opcion!=4){
-        //Menu que permita al usuario insertar, buscar y eliminar
-        cout << "Menu Hash" << endl;
-        cout << "1. Buscar" << endl;
-        cout << "2. Insertar" << endl;
-        cout << "3. Eliminar" << endl;
-        cout << "4. Salir" << endl;
+    // int opcion;
+    // while(opcion!=4){
+    //     //Menu que permita al usuario insertar, buscar y eliminar
+    //     cout << "Menu Hash" << endl;
+    //     cout << "1. Buscar" << endl;
+    //     cout << "2. Insertar" << endl;
+    //     cout << "3. Eliminar" << endl;
+    //     cout << "4. Salir" << endl;
         
-        int id;
-        cin>>opcion;
-        if(opcion==1){
-            cout << "Ingrese el id:"; cin>>id;
-            Record recBusqueda = eh.searchRecord(id);
-            recBusqueda.display(); 
-        }
-        else if(opcion==2){
-            string nombre;
-            string apellido;
-            int ciclo;
-            string carrera;
-            int codigo;
+    //     int id;
+    //     cin>>opcion;
+    //     if(opcion==1){
+    //         cout << "Ingrese el id:"; cin>>id;
+    //         Record recBusqueda = eh.searchRecord(id);
+    //         recBusqueda.display(); 
+    //     }
+    //     else if(opcion==2){
+    //         string nombre;
+    //         string apellido;
+    //         int ciclo;
+    //         string carrera;
+    //         int codigo;
 
-            cout << "Ingrese el id:";cin>>id;
-            cin.ignore();
-            cout << "Ingrese el nombre:"; getline(cin,nombre);
-            cout << "Ingrese el apellido:"; getline(cin, apellido);
-            cout << "Ingrese el ciclo:";cin>>ciclo;
-            cin.ignore();
-            cout << "Ingrese la carrera:";getline(cin,carrera);
-            cout << "Ingres el codigo [solo numeros]:";cin>>codigo;
-            Record buscado(id,nombre,apellido,ciclo,carrera,codigo);
+    //         cout << "Ingrese el id:";cin>>id;
+    //         cin.ignore();
+    //         cout << "Ingrese el nombre:"; getline(cin,nombre);
+    //         cout << "Ingrese el apellido:"; getline(cin, apellido);
+    //         cout << "Ingrese el ciclo:";cin>>ciclo;
+    //         cin.ignore();
+    //         cout << "Ingrese la carrera:";getline(cin,carrera);
+    //         cout << "Ingres el codigo [solo numeros]:";cin>>codigo;
+    //         Record buscado(id,nombre,apellido,ciclo,carrera,codigo);
             
-            eh.insertRecord(buscado);
-            cout << "Agregado con éxito!" << endl;
-        }
-        else if(opcion==3){
-            cout << "Ingrese el id:";cin>>id;
-            eh.deleteRecord(id);
-            cout << "Eliminado con éxito!"<<endl;
-        }
-        else{
-            break;
-        }
+    //         eh.insertRecord(buscado);
+    //         cout << "Agregado con éxito!" << endl;
+    //     }
+    //     else if(opcion==3){
+    //         cout << "Ingrese el id:";cin>>id;
+    //         eh.deleteRecord(id);
+    //         cout << "Eliminado con éxito!"<<endl;
+    //     }
+    //     else{
+    //         break;
+    //     }
 
-    }
+    // }
 
     return 0;
 }

@@ -2,6 +2,8 @@
 #include <fstream>
 #include <math.h>
 #include <cstring>
+#include <string.h>
+#include <sstream>
 #include <map>
 #include <vector>
 
@@ -45,7 +47,7 @@ void llenarArray(char conteiner[], int sizeCont, string data){
 struct Record{
     long int id;
     char nombre[20];
-    char apellido[20];
+    char correo[20];
     int ciclo;
     char carrera[30];
     int codigo;
@@ -54,26 +56,26 @@ struct Record{
     Record(){
         id = -1;
         strcpy(nombre, "");
-        strcpy(apellido, "");
+        strcpy(correo, "");
         ciclo = 0;
         strcpy(carrera, "");
         codigo = 0;
     }
 
-    Record(long int id, const char* nombre, const char* apellido, int ciclo, const char* carrera, int codigo){
+    Record(long int id, const char* nombre, const char* correo, int ciclo, const char* carrera, int codigo){
         this->id = id;
         strcpy(this->nombre, nombre);
-        strcpy(this->apellido, apellido);
+        strcpy(this->correo, correo);
         this->ciclo = ciclo;
         strcpy(this->carrera, carrera);
         this->codigo = codigo;
     }
 
-    Record(long int id, string nombre, string apellido, int ciclo, string carrera, int codigo){
+    Record(long int id, string nombre, string correo, int ciclo, string carrera, int codigo){
         this->id = id;
         for(int i=0;i<20;i++){
             this->nombre[i] = nombre[i];
-            this->apellido[i] = apellido[i];
+            this->correo[i] = correo[i];
         }
         
         this->ciclo = ciclo;
@@ -87,7 +89,7 @@ struct Record{
     void display(){
         cout << "ID: " << id << endl;
         cout << "Nombre: " << nombre << endl;
-        cout << "Apellido: " << apellido << endl;
+        cout << "Correo: " << correo << endl;
         cout << "Ciclo: " << ciclo << endl;
         cout << "Carrera: " << carrera << endl;
         cout << "Codigo: " << codigo << endl;
@@ -110,7 +112,6 @@ struct Bucket{
     char binario[globalDepth];
     long int pos; //Posición del bucket en records.bin
 
-    int payaso;
 
     public:
     Bucket(){
@@ -119,7 +120,7 @@ struct Bucket{
         nRecords = 0;
         strcpy(binario, "");
         pos = 0;
-        payaso = 43;
+
     }
 
     Bucket(int localDepth, string binario){
@@ -130,7 +131,7 @@ struct Bucket{
             this->binario[i] = binario[i];
         }
         pos = 0;
-        payaso = 43;
+
     }
 
     ~Bucket(){}
@@ -141,7 +142,6 @@ struct Bucket{
         cout << "Pos: " << pos << endl;
         cout << "Local depth: " << localDepth << endl;
         cout << "Pos next bucket: " << posNextBucket << endl;
-        cout << "Payaso: " << payaso << endl;
         cout << "nRecords: " << nRecords << endl;
         cout << "Records: " << endl;
         for(int i=0;i<nRecords;i++){
@@ -180,6 +180,7 @@ struct Indice{
 class ExtendibleHash{
     string indexFileName;
     string recordsFileName;
+    hash<float> hash_fn;
 
     public:
     ExtendibleHash(string indexFileName, string recordsFileName){
@@ -238,7 +239,8 @@ class ExtendibleHash{
         //cout << "Tamño de un bucket: " << sizeof(Bucket) << endl;
         //Falta implementar un metodo hash, por ahora saco el modulo
         long int numIndices = pow(2,globalDepth);
-        int hash = record.id % numIndices;     //no se necesita llevar a binario porque el decimal me da el número de índice
+
+        int hash = hash_fn(record.id) % numIndices; //no se necesita llevar a binario porque el decimal me da el número de índice   
         //cout << "Hash: " << hash << endl;
         //1. Busco la posición del bucket en el archivo de index
         ifstream indexFile;
@@ -248,7 +250,6 @@ class ExtendibleHash{
                 throw "Error al abrir el archivo de index";
             } catch (const char* msg) {
                 cerr << msg << endl;
-                return;
             }
         }
         Indice index;
@@ -268,7 +269,6 @@ class ExtendibleHash{
                 throw "Error al abrir el archivo de records";
             } catch (const char* msg) {
                 cerr << msg << endl;
-                return;
             }
         }
 
@@ -280,11 +280,10 @@ class ExtendibleHash{
         recordsFile.seekg(index.pos, ios::beg);
         // 4. Leo el bucket
         recordsFile.read((char*)&bucket, sizeof(Bucket));
-        //Prueba
-        bucket.payaso = 999;
+
         //Prueba
         bucket.pos = index.pos;
-        cout << endl;    
+        // cout << endl;    
 
         // //leo los registros del bucket
         // for(int i = 0; i < bucket.nRecords; i++){
@@ -296,10 +295,10 @@ class ExtendibleHash{
         long int posBucket;
         bool encadenamiento = false;
 
-        if(bucket.posNextBucket!=-1){
-            bucket.display();
+        // if(bucket.posNextBucket!=-1){
+        //     bucket.display();
 
-        }
+        // }
         // cout << bucket.posNextBucket << endl;
         while(bucket.posNextBucket != -1){ //Mientras haya buckets encadenados
             encadenamiento = true;
@@ -311,7 +310,6 @@ class ExtendibleHash{
                         throw "El registro ya existe";
                     }catch(const char* msg){
                         cerr << msg << endl;
-                        return;
                     }
                 }
             }
@@ -360,8 +358,7 @@ class ExtendibleHash{
             // Se inserta el registro en la primera posición vacía
             bucket.records[bucket.nRecords] = record;
             bucket.nRecords++;
-            bucket.payaso = 1024;
-            bucket.display();
+            //bucket.display();
             recordsFile.seekp(posBucket, ios::beg);
 
             recordsFile.write((char*)&bucket, sizeof(Bucket));
@@ -416,9 +413,12 @@ class ExtendibleHash{
                 // Emparejo todos los registros del bucket original a un binario
                 map<Record,string> allRecords;
 
+                int hashC2;
+
                 for(int i=0;i<bucket.nRecords;i++){
                     //Aqui si entra
-                    allRecords[bucket.records[i]] = decimalToBinary(bucket.records[i].id);
+                    hashC2 = hash_fn(bucket.records[i].id)%((int)pow(2,globalDepth));
+                    allRecords[bucket.records[i]] = decimalToBinary(hashC2);
                 }
 
                 allRecords[record] = decimalToBinary(record.id); //agrego el nuevo registro al map
@@ -450,7 +450,6 @@ class ExtendibleHash{
 
                 // 3.1 3. Actualizar el bucket original y el nuevo bucket en el archivo de records
                 recordsFile.seekp(index.pos, ios::beg);
-                bucket.payaso = 95;
                 recordsFile.write((char*)&bucket, sizeof(Bucket));
                 recordsFile.seekp(0, ios::end);
                 long int posNewBucket = recordsFile.tellp(); //guardo la pos del new bucket
@@ -497,10 +496,10 @@ class ExtendibleHash{
                 // cout << "Newbinario: " << newBinario << endl;
                 // cout << "# de indices: " << indices.size() << endl;
 
-                //Leemos todos los índices
-                for(auto it=indices.begin();it!=indices.end();it++){
-                    it->display();
-                }
+                // //Leemos todos los índices
+                // for(auto it=indices.begin();it!=indices.end();it++){
+                //     it->display();
+                // }
 
                 //Itero todos los índices
                for(auto it=indices.begin();it!=indices.end();it++){
@@ -568,8 +567,6 @@ class ExtendibleHash{
                 recordsFile.seekp(0, ios::end);
                 //cout << "Posicion del nuevo bucket: " << recordsFile.tellp() << endl;
                 bucket.posNextBucket = recordsFile.tellp();
-                bucket.payaso = 95;
-                newBucket.payaso = 50;
                 //3.2.4. Actualizar el bucket original y el nuevo bucket en el archivo de records
 
                 recordsFile.seekp(posBucket, ios::beg); 
@@ -635,7 +632,7 @@ class ExtendibleHash{
     void deleteRecord(int id){
         //1. Hallo el hash del id
         long int numIndices = pow(2,globalDepth);
-        int hash = id % numIndices;
+        int hash = hash_fn(id) % numIndices;
         //2. Buscar el índice del registro en el archivo de índices
         fstream indexFile;
         indexFile.open(indexFileName, ios::binary | ios::in);
@@ -706,7 +703,7 @@ class ExtendibleHash{
         try{
             //1. Hallo el hash del id
             long int numIndices = pow(2,globalDepth);
-            int hash = id % numIndices;
+            int hash = hash_fn(id) % numIndices;
             //2. Buscar el índice del registro en el archivo de índices
             fstream indexFile;
             indexFile.open(indexFileName, ios::binary | ios::in);
@@ -744,5 +741,44 @@ class ExtendibleHash{
             cerr << msg << endl;
         }
         return Record();
+    }
+
+
+    void LoadCsv(const string& FileName){
+        ifstream file(FileName);
+        string line;
+
+        while(getline(file,line)){
+            stringstream ss(line);
+            long int id;
+            string nombre, correo, carrera;
+            int ciclo, codigo;
+            getline(ss, line, ',');
+            id = stol(line);
+            getline(ss, nombre, ',');
+            getline(ss, correo, ',');
+            ss >> ciclo;
+            ss.ignore();
+            getline(ss, carrera, ',');
+            ss >> codigo;
+            Record record(id, nombre.c_str(), correo.c_str(), ciclo, carrera.c_str(), codigo);
+
+            insertRecord(record);
+
+        }
+        file.close();
+    }
+
+    void InsertRecordCSV(const string& FileName,Record record){
+
+        //Tambien debo insertarlo en ExtendibleHash
+        insertRecord(record);
+
+        //Insertar en el archivo CSV
+        ofstream file(FileName,ios::app);
+        //salto de linea
+        file << endl;
+        file << record.id << "," << record.nombre << "," << record.correo << "," << record.ciclo << "," << record.carrera << "," << record.codigo ;
+        file.close();
     }
 };
