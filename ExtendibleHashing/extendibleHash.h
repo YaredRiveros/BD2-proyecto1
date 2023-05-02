@@ -235,17 +235,21 @@ class ExtendibleHash{
     ~ExtendibleHash(){}
 
     void insertRecord(Record record){
-        cout << "Tamño de un bucket: " << sizeof(Bucket) << endl;
+        //cout << "Tamño de un bucket: " << sizeof(Bucket) << endl;
         //Falta implementar un metodo hash, por ahora saco el modulo
         long int numIndices = pow(2,globalDepth);
         int hash = record.id % numIndices;     //no se necesita llevar a binario porque el decimal me da el número de índice
-        cout << "Hash: " << hash << endl;
+        //cout << "Hash: " << hash << endl;
         //1. Busco la posición del bucket en el archivo de index
         ifstream indexFile;
         indexFile.open(indexFileName, ios::in | ios::binary | ios::app);
         if(!indexFile){
-            cout << "Error al abrir el archivo de index" << endl;
-            return;
+            try {
+                throw "Error al abrir el archivo de index";
+            } catch (const char* msg) {
+                cerr << msg << endl;
+                return;
+            }
         }
         Indice index;
         indexFile.seekg(hash*sizeof(Indice), ios::beg); //La posicion del índice está dada por el #del índice * el tamaño del índice
@@ -254,14 +258,18 @@ class ExtendibleHash{
 
         indexFile.close();
 
-        cout << "Pos a la que apunta el indice leido: " << index.pos << endl;
+        //cout << "Pos a la que apunta el indice leido: " << index.pos << endl;
         // 3. Busco el bucket en el archivo de records
         fstream recordsFile;
 
         recordsFile.open(recordsFileName, ios::in | ios::out | ios::binary);
         if(!recordsFile){
-            cout << "Error al abrir el archivo de records" << endl;
-            return;
+            try {
+                throw "Error al abrir el archivo de records";
+            } catch (const char* msg) {
+                cerr << msg << endl;
+                return;
+            }
         }
 
         // int prueba = 99999;
@@ -292,15 +300,19 @@ class ExtendibleHash{
             bucket.display();
 
         }
-        cout << bucket.posNextBucket << endl;
+        // cout << bucket.posNextBucket << endl;
         while(bucket.posNextBucket != -1){ //Mientras haya buckets encadenados
             encadenamiento = true;
-            cout << "bucleee" << endl;   //Error: cuando el maximo del array "records" es Maxrecords, entra a bucle infinito
+            //cout << "bucleee" << endl;   //Error: cuando el maximo del array "records" es Maxrecords, entra a bucle infinito
             //Verificamos que no se encuentre el registro en el bucket
             for(int i = 0; i < bucket.nRecords; i++){
                 if(bucket.records[i].id == record.id){
-                    cout << "El registro ya existe" << endl;
-                    return;
+                    try{
+                        throw "El registro ya existe";
+                    }catch(const char* msg){
+                        cerr << msg << endl;
+                        return;
+                    }
                 }
             }
             //Si no se encuentra el registro, se pasa al siguiente bucket
@@ -317,34 +329,34 @@ class ExtendibleHash{
         // cout << "Tamaño del bucket luego del while: " << bucket.nRecords << endl;
         string indexBin(index.binario); // indexBin es el binario del indice
         string bucketBin = indexBin.substr(indexBin.length()-bucket.localDepth);  
-        cout << "BucketBin: " << bucketBin << endl;
+        // cout << "BucketBin: " << bucketBin << endl;
         // llenarArray(bucket.binario, globalDepth, bucketBin); //uso la funcion para llenar el array con el binario del indice
         for(int i=0;i<bucketBin.length();i++){
             if(bucketBin[i]=='0')
                 bucket.binario[i] = '0';
             else if(bucketBin[i]=='1')
                 bucket.binario[i] = '1';
-            cout << "i: " << i << endl;
-            cout << "bucket.binario: " << bucket.binario << endl;
+            // cout << "i: " << i << endl;
+            // cout << "bucket.binario: " << bucket.binario << endl;
         }
 
         //Quito letras que no me interesan
         bucket.binario[bucket.localDepth] = '\0';
 
-        cout << "Bucket.binario: " << bucket.binario << endl;
+        // cout << "Bucket.binario: " << bucket.binario << endl;
         
-        for(int i = 0; i < bucket.nRecords; i++){
-            cout << "ID " << i << ": " << bucket.records[i].id << endl;
-        }
+        // for(int i = 0; i < bucket.nRecords; i++){
+        //     cout << "ID " << i << ": " << bucket.records[i].id << endl;
+        // }
 
         // //Cuando borro todos los registros de records.bin corre bien hasta acá, pero si tiene datos no funciona :(
             
         // //5.1 Si no está lleno el bucket, insertar el registro en la primera posición vacía
 
-        cout << "posBucket: " << posBucket << endl;
+        // cout << "posBucket: " << posBucket << endl;
         
         if(bucket.nRecords<maxRecords){
-            cout << "Bucket no está lleno" << endl;
+            // cout << "Bucket no está lleno" << endl;
             // Se inserta el registro en la primera posición vacía
             bucket.records[bucket.nRecords] = record;
             bucket.nRecords++;
@@ -354,16 +366,16 @@ class ExtendibleHash{
 
             recordsFile.write((char*)&bucket, sizeof(Bucket));
 
-            //verificamos
-            recordsFile.seekg(posBucket, ios::beg);
-            recordsFile.read((char*)&bucket, sizeof(Bucket));
-            cout << "Bucket luego de insertar: " << endl;
-            bucket.display();
-            muestraData();
+            // //verificamos
+            // recordsFile.seekg(posBucket, ios::beg);
+            // recordsFile.read((char*)&bucket, sizeof(Bucket));
+            // cout << "Bucket luego de insertar: " << endl;
+            // bucket.display();
+            // muestraData();
         }
         //3. Si está lleno, revisar que el depth local sea menor al global
         else{
-            cout  << "Bucket lleno" << endl;
+            // cout  << "Bucket lleno" << endl;
             // 3.1. Si localDepth es menor que globalDepth, duplicar el bucket
             if(bucket.localDepth<globalDepth){
                 //3.1.1. Duplicar el bucket
@@ -388,12 +400,12 @@ class ExtendibleHash{
 
                 // cout << "Newbin: " << newBinario << endl;
                 // cout << "Oldbin: " << oldBinario << endl;
-                cout << "OldBinario: " << oldBinario << endl;
+                // cout << "OldBinario: " << oldBinario << endl;
 
                 for(int i=0;i<oldBinario.length();i++){
                     bucket.binario[i] = oldBinario[i];
                 }
-                cout << "Bucket binario: " << bucket.binario << endl;
+                // cout << "Bucket binario: " << bucket.binario << endl;
                 for(int i=0;i<newBinario.length();i++){
                     newBucket.binario[i] = newBinario[i];
                 }
@@ -419,22 +431,22 @@ class ExtendibleHash{
                 
                 for(auto it=allRecords.begin();it!=allRecords.end();it++){
                     if(it->second.substr(it->second.length()-bucket.localDepth) == oldBinario){ //si los ultimos digitos del binario del registro son iguales al binario del bucket original
-                        cout << "entro al if" << endl;
+                        // cout << "entro al if" << endl;
                         bucket.records[bucket.nRecords] = it->first;
                         bucket.nRecords++;
 
                     }
                     else if(it->second.substr(it->second.length()-bucket.localDepth) == newBinario){
-                        cout << "entro al else if" << endl;
+                        // cout << "entro al else if" << endl;
                         newBucket.records[newBucket.nRecords] = it->first;
                         newBucket.nRecords++;
                     }
                 }
-                cout << "--Luego del split--" << endl;
-                cout << "Bucket:" << endl;
-                bucket.display();
-                cout << "NewBucket:" << endl;
-                newBucket.display();
+                // cout << "--Luego del split--" << endl;
+                // cout << "Bucket:" << endl;
+                // bucket.display();
+                // cout << "NewBucket:" << endl;
+                // newBucket.display();
 
                 // 3.1 3. Actualizar el bucket original y el nuevo bucket en el archivo de records
                 recordsFile.seekp(index.pos, ios::beg);
@@ -445,45 +457,45 @@ class ExtendibleHash{
                 newBucket.pos = posNewBucket;
                 recordsFile.write((char*)&newBucket, sizeof(Bucket)); //Se escribe el nuevo bucket al final del archivo de records
 
-                //verifico que se hayan escrito bien los buckets
+                // //verifico que se hayan escrito bien los buckets
 
-                //lectura del bucket original
-                recordsFile.seekg(index.pos, ios::beg);
-                cout << "Posicion del bucket original: " << index.pos << endl;
-                recordsFile.read((char*)&bucket, sizeof(Bucket));
-                cout  << "Bucket original: " << endl;
-                bucket.display();
+                // //lectura del bucket original
+                // recordsFile.seekg(index.pos, ios::beg);
+                // cout << "Posicion del bucket original: " << index.pos << endl;
+                // recordsFile.read((char*)&bucket, sizeof(Bucket));
+                // cout  << "Bucket original: " << endl;
+                // bucket.display();
 
                 //Lectura del nuevo bucket
                 recordsFile.seekg(posNewBucket, ios::beg);
                 recordsFile.read((char*)&newBucket, sizeof(Bucket));
                 
-                cout << "Nuevo bucket: " << endl;
-                newBucket.display();
+                // cout << "Nuevo bucket: " << endl;
+                // newBucket.display();
 
                 //3.1.4. Actualizar el archivo de índices, actualizar la direccion a donde apuntan ya que se creo un nuevo bucket
 
                 indexFile.open(indexFileName, ios::in | ios::binary);
                 vector<Indice> indices;
                 Indice indexAux;
-                cout << "index.pos: " << index.pos << endl;
-                cout << "IndexAux.pos: " << indexAux.pos << endl;
+                // cout << "index.pos: " << index.pos << endl;
+                // cout << "IndexAux.pos: " << indexAux.pos << endl;
                 indexFile.seekg(0, ios::end);
                 long int posFinal = indexFile.tellg();
-                cout << "Posicion final: " << posFinal << endl;
+                // cout << "Posicion final: " << posFinal << endl;
                 indexFile.seekg(0, ios::beg);
 
                 while(indexFile.tellg()<posFinal){
-                    cout << "pos del archivo: " << indexFile.tellg() << endl;
+                    // cout << "pos del archivo: " << indexFile.tellg() << endl;
                     indexFile.read((char*)&indexAux, sizeof(Indice));
-                    cout << "IndexAux.pos: " ;
+                    // cout << "IndexAux.pos: " ;
                     printCharArray(indexAux.binario, globalDepth);
                     indices.push_back(indexAux);
                 }
                 indexFile.close();
-                cout << "Oldbinario: " << oldBinario << endl;
-                cout << "Newbinario: " << newBinario << endl;
-                cout << "# de indices: " << indices.size() << endl;
+                // cout << "Oldbinario: " << oldBinario << endl;
+                // cout << "Newbinario: " << newBinario << endl;
+                // cout << "# de indices: " << indices.size() << endl;
 
                 //Leemos todos los índices
                 for(auto it=indices.begin();it!=indices.end();it++){
@@ -492,8 +504,8 @@ class ExtendibleHash{
 
                 //Itero todos los índices
                for(auto it=indices.begin();it!=indices.end();it++){
-                    cout << "IndexAux.pos (inicio): " << it->pos << endl;
-                    cout << "IndexAux.binario1: " << it->binario << endl;
+                    // cout << "IndexAux.pos (inicio): " << it->pos << endl;
+                    // cout << "IndexAux.binario1: " << it->binario << endl;
                     string indexBin2(it->binario);
                     if(indexBin2.substr(indexBin2.length()-bucket.localDepth) == oldBinario){ //si el binario del indice es igual al binario del bucket original
                         it->pos = index.pos;       //se le deja la misma posicion
@@ -501,8 +513,8 @@ class ExtendibleHash{
                     else if(indexBin2.substr(indexBin2.length()-bucket.localDepth) == newBinario){
                         it->pos = posNewBucket;       //si no, se le asigna la posicion del nuevo bucket
                     }
-                    cout << "IndexAux.binario2: " << it->binario << endl;
-                    cout << "IndexAux.pos (fin): " << it->pos << endl;
+                    // cout << "IndexAux.binario2: " << it->binario << endl;
+                    // cout << "IndexAux.pos (fin): " << it->pos << endl;
                } 
 
                 //Escribo los índices modificados en el archivo de índices
@@ -545,7 +557,7 @@ class ExtendibleHash{
             //3.2. Si local depth es mayor o igual, encadenar un nuevo bucket al bucket original
 
             else{       
-                cout << "Entra encadenamiento:" <<endl;
+                //cout << "Entra encadenamiento:" <<endl;
                 
                 //3.2.1. Crear un nuevo bucket
                 Bucket newBucket(bucket.localDepth,bucket.binario); // copia del bucket original
@@ -554,7 +566,7 @@ class ExtendibleHash{
                 newBucket.nRecords++;
                 //3.2.3 El bucket original apunta al nuevo bucket
                 recordsFile.seekp(0, ios::end);
-                cout << "Posicion del nuevo bucket: " << recordsFile.tellp() << endl;
+                //cout << "Posicion del nuevo bucket: " << recordsFile.tellp() << endl;
                 bucket.posNextBucket = recordsFile.tellp();
                 bucket.payaso = 95;
                 newBucket.payaso = 50;
@@ -567,20 +579,20 @@ class ExtendibleHash{
                 
                 recordsFile.close();
 
-                //verificacion de encadenamiento
+                // //verificacion de encadenamiento
 
-                //lectura del bucket original
-                recordsFile.seekg(posBucket, ios::beg);
-                cout << "posBucket: " << posBucket << endl;
-                recordsFile.read((char*)&bucket, sizeof(Bucket));
-                cout  << "Bucket original: " << endl;
-                bucket.display();
+                // //lectura del bucket original
+                // recordsFile.seekg(posBucket, ios::beg);
+                // cout << "posBucket: " << posBucket << endl;
+                // recordsFile.read((char*)&bucket, sizeof(Bucket));
+                // cout  << "Bucket original: " << endl;
+                // bucket.display();
 
-                //Lectura del nuevo bucket
-                recordsFile.seekg(bucket.posNextBucket, ios::beg);
-                recordsFile.read((char*)&newBucket, sizeof(Bucket));
-                cout << "Nuevo bucket: " << endl;
-                newBucket.display();
+                // //Lectura del nuevo bucket
+                // recordsFile.seekg(bucket.posNextBucket, ios::beg);
+                // recordsFile.read((char*)&newBucket, sizeof(Bucket));
+                // cout << "Nuevo bucket: " << endl;
+                // newBucket.display();
             }
         }
 
