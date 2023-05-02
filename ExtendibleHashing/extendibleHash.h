@@ -70,6 +70,15 @@ struct Record{
 
     ~Record(){}
 
+    void display(){
+        cout << "ID: " << id << endl;
+        cout << "Nombre: " << nombre << endl;
+        cout << "Apellido: " << apellido << endl;
+        cout << "Ciclo: " << ciclo << endl;
+        cout << "Carrera: " << carrera << endl;
+        cout << "Codigo: " << codigo << endl;
+        cout << "------" << endl;
+    }
 };
 
 // Definimos la sobrecarga globalmente para que el std::map lo pueda utilizar
@@ -597,11 +606,51 @@ class ExtendibleHash{
         cout << "FIN DATA\n\n";
     }
 
-    void deleteRecord(int codigo){
+    void deleteRecord(int id){
         //TODO
     }
 
-    void searchRecord(int codigo){
-        //TODO
+    Record searchRecord(int id){
+        try{
+            //1. Hallo el hash del id
+            long int numIndices = pow(2,globalDepth);
+            int hash = id % numIndices;
+            //2. Buscar el índice del registro en el archivo de índices
+            fstream indexFile;
+            indexFile.open(indexFileName, ios::binary | ios::in);
+            indexFile.seekg(hash*sizeof(Indice), ios::beg);
+            Indice index;
+            indexFile.read((char*)&index, sizeof(Indice));
+            indexFile.close();
+            //3. Buscar el registro en el archivo de records
+            fstream recordsFile;
+            recordsFile.open(recordsFileName, ios::binary | ios::in);
+            recordsFile.seekg(index.pos, ios::beg);
+            Bucket bucket;
+            recordsFile.read((char*)&bucket, sizeof(Bucket));
+            //4. Buscar el registro en el bucket
+            for(int i=0; i<bucket.nRecords; i++){
+                if(bucket.records[i].id == id){
+                    return bucket.records[i];
+                }
+            }
+
+            //5. Si no se encuentra, iterar por los encadenamientos
+            while(bucket.posNextBucket != -1){
+                recordsFile.seekg(bucket.posNextBucket, ios::beg);
+                recordsFile.read((char*)&bucket, sizeof(Bucket));
+                for(int i=0; i<bucket.nRecords; i++){
+                    if(bucket.records[i].id == id){
+                        return bucket.records[i];
+                    }
+                }
+            }
+            recordsFile.close();
+            throw "No se encontró el registro, devolviendo registro vacío";
+        }
+        catch(const char* msg){
+            cerr << msg << endl;
+        }
+        return Record();
     }
 };

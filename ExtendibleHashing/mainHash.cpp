@@ -15,7 +15,7 @@ int main(){
     ExtendibleHash eh("index.bin", "records.bin");
 
     cout << "---Inserción 1---" << endl;
-    eh.insertRecord(Record(1, "nombre1", "apellido1", 1, "carrera1", 1)); //1 en binario es 001 -> bucket 1
+    eh.insertRecord(Record(1, "Pepe", "Vazques", 5, "CS", 202177777)); //1 en binario es 001 -> bucket 1
 
     cout << "---Inserción 2---" << endl;
     eh.insertRecord(Record(2, "nombre2", "apellido2", 2, "carrera2", 2)); //3 en binario es 011 -> bucket 2
@@ -62,7 +62,7 @@ int main(){
     eh.insertRecord(Record(57, "nombre24", "apellido24", 2, "carrera6", 2));
 
     cout << "---Inserción 15---" << endl;
-    eh.insertRecord(Record(65, "nombre25", "apellido25", 2, "carrera7", 2));
+    eh.insertRecord(Record(65, "Encadenadito", "Cardenas", 1, "Industrial", 202110299));
 
 
     cout << "Lectura de datos" << endl;
@@ -82,5 +82,18 @@ int main(){
     }
     file2.close();
 
+    cout << "\tLectura de record no encadenado" << endl;
+    Record r = eh.searchRecord(1);
+    r.display();
+
+
+    cout << "\tLectura de record encadenado" << endl;
+    Record r2 = eh.searchRecord(65);
+    r2.display();
+
+
+    cout << "\tLectura de un record que no se encuentra" << endl;
+    Record r3 = eh.searchRecord(100);
+    r3.display();   
     return 0;
 }
