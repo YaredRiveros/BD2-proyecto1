@@ -33,6 +33,14 @@ search: busca un registro por su ID, primero en el archivo auxiliar y luego en e
 
 `searchRange`: busca todos los registros cuyas ID estén dentro de un rango especificado.
 
+#### Complejidad (accesos a memoria secundaria)
+
+`Insert`: 1
+
+`Search`: #records
+
+`Delete`: 1+ 2*#records
+
 
 ### Hashing extensible
 
