@@ -95,5 +95,14 @@ int main(){
     cout << "\tLectura de un record que no se encuentra" << endl;
     Record r3 = eh.searchRecord(100);
     r3.display();   
+
+
+    cout << "\tEliminación de un record que sí se encuentra" << endl;
+    eh.deleteRecord(1);
+
+    cout << "\tBusco el record eliminado" << endl;
+    Record r4 = eh.searchRecord(1);
+    r4.display();
+
     return 0;
 }

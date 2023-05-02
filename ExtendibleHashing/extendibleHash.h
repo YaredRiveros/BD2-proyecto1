@@ -52,6 +52,7 @@ struct Record{
 
     public:
     Record(){
+        id = -1;
         strcpy(nombre, "");
         strcpy(apellido, "");
         ciclo = 0;
@@ -607,7 +608,73 @@ class ExtendibleHash{
     }
 
     void deleteRecord(int id){
-        //TODO
+        //1. Hallo el hash del id
+        long int numIndices = pow(2,globalDepth);
+        int hash = id % numIndices;
+        //2. Buscar el índice del registro en el archivo de índices
+        fstream indexFile;
+        indexFile.open(indexFileName, ios::binary | ios::in);
+        indexFile.seekg(hash*sizeof(Indice), ios::beg);
+        Indice index;
+        indexFile.read((char*)&index, sizeof(Indice));
+        indexFile.close();
+        //3. Buscar el registro en el archivo de records
+        fstream recordsFile;
+        recordsFile.open(recordsFileName, ios::binary | ios::in | ios::out);
+        recordsFile.seekg(index.pos, ios::beg);
+        Bucket bucket;
+        recordsFile.read((char*)&bucket, sizeof(Bucket));
+        //4. Buscar el registro en el bucket
+        for(int i=0; i<bucket.nRecords; i++){
+            if(bucket.records[i].id == id){
+                //5. Eliminar el registro del bucket
+                cout << "Registro eliminado:" << endl;
+                bucket.records[i].display();
+
+                int posEliminado = i;
+                int numArrastres = bucket.nRecords - posEliminado - 1;
+                for(int j=i,k=0; k<numArrastres; j++,k++){
+                    bucket.records[j] = bucket.records[j+1];
+                }
+
+                bucket.nRecords--;
+                //6. Actualizar el bucket en el archivo de records
+
+                recordsFile.seekp(index.pos, ios::beg);
+                recordsFile.write((char*)&bucket, sizeof(Bucket));
+
+                return;
+            }
+        }
+        //7. Si no se encuentra, buscar en los encadenamientos del bucket
+        while(bucket.posNextBucket != -1){
+            recordsFile.seekg(bucket.posNextBucket, ios::beg);
+            recordsFile.read((char*)&bucket, sizeof(Bucket));
+            for(int i=0; i<bucket.nRecords; i++){
+                if(bucket.records[i].id == id){
+                    //8. Eliminar el registro del bucket
+                    cout << "Registro eliminado:" << endl;
+                    bucket.records[i].display();
+
+                    int posEliminado = i;
+                    int numArrastres = bucket.nRecords - posEliminado - 1;
+                    for(int j=i,k=0; k<numArrastres; j++,k++){
+                        bucket.records[j] = bucket.records[j+1];
+                    }
+
+                    bucket.nRecords--;
+                    //9. Actualizar el bucket en el archivo de records
+
+                    recordsFile.seekp(index.pos, ios::beg);
+                    recordsFile.write((char*)&bucket, sizeof(Bucket));
+
+                    return;
+                }
+            }
+        }
+        //10. Si no se encuentra, el registro no existe
+        cout << "El registro no existe" << endl;
+        recordsFile.close();
     }
 
     Record searchRecord(int id){
