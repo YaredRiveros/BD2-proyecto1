@@ -9,7 +9,7 @@ Proyecto 1 del curso de Base de datos 2 en UTEC
 
 ---
 
-## Implementación de archivos secuenciales ordenados y hashing extensible
+## Técnicas utilizadas
 
 Este proyecto presenta dos implementaciones de almacenamiento y búsqueda de registros: archivos secuenciales ordenados y hashing extensible. El usuario puede seleccionar la implementación que desea utilizar después de cargar el archivo CSV. Las operaciones disponibles para ambas implementaciones incluyen buscar, eliminar y buscar por rango.
 
@@ -31,20 +31,27 @@ search: busca un registro por su ID, primero en el archivo auxiliar y luego en e
 
 ### Hashing extensible
 
-  loading...
+Nuestra implementación utiliza 2 archivos: records.bin (almacena los buckets que a su vez almacenan records) e index.bin (almacena los índices que me permiten saber la posición de los buckets en records.bin).
 
 ## Funciones implementadas:
 
-`search`: función para buscar registros por su ID.
+La complejidad de todas estas operaciones es O(k), donde k es la cantidad máxima de encadenamientos.
 
-`delete`: función para eliminar registros por su ID.
+`Insert`: función para insertar registros. Primero, busca el índice asociado al id del record. Luego, busca la cadena de buckets asociado a ese índice. Por último, existen 3 casos posibles para la inserción:
 
-`searchRange`: función para buscar registros dentro de un rango de ID.
+- Si el 1er bucket de la cadena no está lleno, inserta el record.
+- Si el bucket está lleno y la profundidad local del bucket es menor a la profundidad global, entonces se crea un bucket a partir del bucket original y se dividen los records entre éstos 2.
+- Si el bucket está lleno y la profundidad local del bucket es mayor o igual a la profundidad global, entonces se crea un nuevo bucket y se encadena al bucket que se llenó
+
+`Search`: función para buscar registros por su ID. Primero, busca el índice asociado al id del record. Luego, busca la cadena de buckets asociado a ese índice. Por último, itera en la cadena de buckets para buscar el record.
+
+`Delete`: función para eliminar registros por su ID. Primero, realiza el mismo proceso descrito en la búsqueda. Luego, una vez encontrado el bucket que contiene el record, lo elimina del bucket.
+
+*Nota: EL range search no es soportado por esta técnica*
 
 ## Uso
 
-
-Después de cargar el archivo CSV, el programa presentará una interfaz de menú donde el usuario puede seleccionar la implementación que desea utilizar (archivos secuenciales ordenados o hashing extensible). Una vez seleccionada la implementación, el usuario puede realizar las siguientes operaciones: buscar, eliminar y buscar por rango de ID.
+Después de cargar el archivo CSV, el programa presentará un menú  en consola donde el usuario puede seleccionar la implementación que desea utilizar (archivos secuenciales ordenados o hashing extensible). Una vez seleccionada la implementación, el usuario puede realizar las siguientes operaciones: buscar, eliminar y buscar por rango de ID.
 
 ## Compilación y ejecución
 
