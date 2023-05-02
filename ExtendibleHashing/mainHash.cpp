@@ -82,27 +82,74 @@ int main(){
     }
     file2.close();
 
-    cout << "\tLectura de record no encadenado" << endl;
-    Record r = eh.searchRecord(1);
-    r.display();
+    // cout << "\tLectura de record no encadenado" << endl;
+    // Record r = eh.searchRecord(1);
+    // r.display();
 
 
-    cout << "\tLectura de record encadenado" << endl;
-    Record r2 = eh.searchRecord(65);
-    r2.display();
+    // cout << "\tLectura de record encadenado" << endl;
+    // Record r2 = eh.searchRecord(65);
+    // r2.display();
 
 
-    cout << "\tLectura de un record que no se encuentra" << endl;
-    Record r3 = eh.searchRecord(100);
-    r3.display();   
+    // cout << "\tLectura de un record que no se encuentra" << endl;
+    // Record r3 = eh.searchRecord(100);
+    // r3.display();   
 
 
-    cout << "\tEliminación de un record que sí se encuentra" << endl;
-    eh.deleteRecord(1);
+    // cout << "\tEliminación de un record que sí se encuentra" << endl;
+    // eh.deleteRecord(1);
 
-    cout << "\tBusco el record eliminado" << endl;
-    Record r4 = eh.searchRecord(1);
-    r4.display();
+    // cout << "\tBusco el record eliminado" << endl;
+    // Record r4 = eh.searchRecord(1);
+    // r4.display();
+
+    int opcion;
+    while(opcion!=4){
+        //Menu que permita al usuario insertar, buscar y eliminar
+        cout << "Menu Hash" << endl;
+        cout << "1. Buscar" << endl;
+        cout << "2. Insertar" << endl;
+        cout << "3. Eliminar" << endl;
+        cout << "4. Salir" << endl;
+        
+        int id;
+        cin>>opcion;
+        if(opcion==1){
+            cout << "Ingrese el id:"; cin>>id;
+            Record recBusqueda = eh.searchRecord(id);
+            recBusqueda.display(); 
+        }
+        else if(opcion==2){
+            string nombre;
+            string apellido;
+            int ciclo;
+            string carrera;
+            int codigo;
+
+            cout << "Ingrese el id:";cin>>id;
+            cin.ignore();
+            cout << "Ingrese el nombre:"; getline(cin,nombre);
+            cout << "Ingrese el apellido:"; getline(cin, apellido);
+            cout << "Ingrese el ciclo:";cin>>ciclo;
+            cin.ignore();
+            cout << "Ingrese la carrera:";getline(cin,carrera);
+            cout << "Ingres el codigo [solo numeros]:";cin>>codigo;
+            Record buscado(id,nombre,apellido,ciclo,carrera,codigo);
+            
+            eh.insertRecord(buscado);
+            cout << "Agregado con éxito!" << endl;
+        }
+        else if(opcion==3){
+            cout << "Ingrese el id:";cin>>id;
+            eh.deleteRecord(id);
+            cout << "Eliminado con éxito!"<<endl;
+        }
+        else{
+            break;
+        }
+
+    }
 
     return 0;
 }

@@ -69,6 +69,19 @@ struct Record{
         this->codigo = codigo;
     }
 
+    Record(long int id, string nombre, string apellido, int ciclo, string carrera, int codigo){
+        this->id = id;
+        for(int i=0;i<20;i++){
+            this->nombre[i] = nombre[i];
+            this->apellido[i] = apellido[i];
+        }
+        
+        this->ciclo = ciclo;
+        for(int i=0;i<30;i++)
+            this->carrera[i] = carrera[i];
+        this->codigo = codigo;
+    }
+
     ~Record(){}
 
     void display(){
