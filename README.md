@@ -46,6 +46,8 @@ search: busca un registro por su ID, primero en el archivo auxiliar y luego en e
 
 Nuestra implementación utiliza 2 archivos: records.bin (almacena los buckets que a su vez almacenan records) e index.bin (almacena los índices que me permiten saber la posición de los buckets en records.bin).
 
+![image](https://user-images.githubusercontent.com/83974320/235976654-cfae4ccc-842f-4332-a3c5-d338c28ba435.png)
+
 #### Funciones implementadas:
 
 La complejidad de todas estas operaciones es O(k), donde k es la cantidad máxima de encadenamientos.
