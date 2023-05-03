@@ -35,11 +35,11 @@ search: busca un registro por su ID, primero en el archivo auxiliar y luego en e
 
 #### Complejidad (accesos a memoria secundaria)
 
-`Insert`: 1
+`Insert`: log(N) + k reads, log(N) + k 
 
-`Search`: #records
+`Search`:  k + log2(N) reads, 0 writes
 
-`Delete`: 1+ 2*#records
+`Delete`: k + log2(N) reads + N 
 
 
 ### Hashing extensible
