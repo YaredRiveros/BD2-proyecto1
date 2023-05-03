@@ -10,9 +10,9 @@ Proyecto 1 del curso de Base de datos 2 en UTEC
 ---
 
 ## Introducción
-Nuestr objetivo es crear desde cero 2 técnicas de gestión de bases de datos: Sequential File y Extendible Hashing. Luego, realizar una comparación de ambas técnicas en función de accesos a memoria y tiempo de ejecución de sus algoritmos de búsqueda e inserción. Se espera que la técnica Extendible Hashing tenga más accesos a memoria que el Sequential File, pero que sus operación de búsqueda e inserción tomen tomen menos tiempo en ejecutarse.
+Nuestro objetivo es crear desde cero 2 técnicas de gestión de bases de datos: Sequential File y Extendible Hashing. Luego, realizar una comparación de ambas técnicas en función de accesos a memoria y tiempo de ejecución de sus algoritmos de búsqueda e inserción. Se espera que la técnica Extendible Hashing tenga más accesos a memoria que el Sequential File, pero que sus operación de búsqueda e inserción tomen tomen menos tiempo en ejecutarse.
 
-Para las pruebas, crearemos nuestro propio dataset, que contiene los siguientes atributos: id, nombre apellidos, ciclo, carrera y codigo de los alumnos de UTEC.
+Para las pruebas, crearemos nuestro propio dataset, que contiene los siguientes atributos: id, nombre apellidos, ciclo, carrera y código de los alumnos de UTEC.
 
 ## Técnicas utilizadas
 
