@@ -15,7 +15,7 @@ int main(){
     //Inserción
     chrono::time_point<std::chrono::system_clock>inicio,fin;
     inicio = chrono::high_resolution_clock::now();
-    eHash.LoadCsv(csv_file_name);
+    // eHash.LoadCsv(csv_file_name);
     cout << "Datos cargados exitosamente." << endl;
     fin = chrono::high_resolution_clock::now();
 
@@ -27,10 +27,34 @@ int main(){
     int count = 0;
     int total = 0;
     inicio = chrono::high_resolution_clock::now();
-    Record r = eHash.searchRecord(1250, count);
+
+    Record r = eHash.searchRecord(1, count);
     r.display();
     total += count;
-    
+    r = eHash.searchRecord(9, count);
+    r.display();
+    total += count;
+    r = eHash.searchRecord(19, count);
+    r.display();
+    total += count;
+    r = eHash.searchRecord(39, count);
+    r.display();
+    total += count;
+    r = eHash.searchRecord(78, count);
+    r.display();
+    total += count;
+    r = eHash.searchRecord(156, count);
+    r.display();
+    total += count;
+    r = eHash.searchRecord(312, count);
+    r.display();
+    total += count;
+    r = eHash.searchRecord(625, count);
+    r.display();
+    total += count;
+    r = eHash.searchRecord(1250, count);
+    r.display();
+    total += count;
     r = eHash.searchRecord(2500, count);
     r.display();
     total += count;

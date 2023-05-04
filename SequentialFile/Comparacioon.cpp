@@ -440,16 +440,16 @@ int main() {
     //Inserción
     chrono::time_point<std::chrono::system_clock>inicio,fin;
     inicio = chrono::high_resolution_clock::now();
-    cout << "Iniciando inserción..." << endl;
-    std::vector<Record> records = readCSV("DataBase.csv");
-    int cont = 0;
-    for (const auto &record : records) {
-        insertRecord(record, mainFilename, auxFilename, K,cont);
-    }
-    cout << "Inserción finalizada" << endl;
+    // cout << "Iniciando inserción..." << endl;
+    // std::vector<Record> records = readCSV("DataBase.csv");
+    // int cont = 0;
+    // for (const auto &record : records) {
+    //     insertRecord(record, mainFilename, auxFilename, K,cont);
+    // }
+    // cout << "Inserción finalizada" << endl;
     fin = chrono::high_resolution_clock::now();
 
-    cout << "Número de accesos a memoria secundaria: " << cont << endl;
+    // cout << "Número de accesos a memoria secundaria: " << cont << endl;
 
     std::chrono::duration<double,std::milli>t=fin-inicio;
     cout << "Tiempo Inserción: " << t.count() << " ms"<<endl;
@@ -458,16 +458,90 @@ int main() {
 
     //Búsqueda
     int count = 0;
+    int total = 0;
     inicio = chrono::high_resolution_clock::now();
-    vector<Record> recordsB = search(1250, mainFilename, auxFilename,count);
+    cout << "Iniciando búsqueda..." << endl;
+
+    std::vector<Record> recordsB = search(1, mainFilename, auxFilename,count);
     for (const auto &record : recordsB) {
         record.display();
         std::cout << "------------------------" << std::endl;
     }
-    int total = 0;
+
     total += count;
     count = 0;
 
+    recordsB = search(9, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
+
+    recordsB = search(19, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
+
+    recordsB = search(39, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
+
+    recordsB = search(78, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
+
+    recordsB = search(156, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
+
+    recordsB = search(312, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
+
+    recordsB = search(625, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
+
+    recordsB = search(1250, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+
+    total += count;
+    count = 0;
 
     recordsB = search(2500, mainFilename, auxFilename,count);
     for (const auto &record : recordsB) {
@@ -477,12 +551,15 @@ int main() {
 
     total += count;
     count = 0;
+
     recordsB = search(5000, mainFilename, auxFilename,count);
     for (const auto &record : recordsB) {
         record.display();
         std::cout << "------------------------" << std::endl;
     }
+
     total += count;
+
     fin = chrono::high_resolution_clock::now();
     cout << "Número de accesos a memoria secundaria: " << total << endl;
     t=fin-inicio;

@@ -22,6 +22,8 @@ Este proyecto presenta dos implementaciones de almacenamiento y búsqueda de reg
 
 La implementación de archivos secuenciales ordenados utiliza dos archivos: un archivo principal y un archivo auxiliar. Los registros se insertan en el archivo principal de manera ordenada, mientras que el archivo auxiliar se utiliza para agregar nuevos registros que no encajan en el orden actual. Cuando el archivo auxiliar alcanza un límite predefinido de registros, los dos archivos se fusionan y se vuelven a ordenar.
 
+![imagen_](./sequential.png)
+
 #### Funciones implementadas:
 
 `insertRecord`: inserta un registro en el archivo principal o auxiliar según las condiciones especificadas.
@@ -74,11 +76,11 @@ La complejidad de todas estas operaciones es O(k), donde k es la cantidad máxim
 
 
 ## Resultados experimentales
-Se realizo una prueba de rendimiento para cada una de las implementaciones. Para cada prueba, se utilizó un dataset de 500,000 registros. Se realizaron 5000 operaciones de inserción, 3 operaciones de búsqueda. Los resultados de las pruebas se muestran a continuación:
+Se realizo una prueba de rendimiento para cada una de las implementaciones. Para cada prueba, se utilizó un dataset de 500,000 registros. Se realizaron 5000 operaciones de inserción, 11 operaciones de búsqueda con ID empezando desde 5000 disminuyendo de mitad en mitad hasta 1.Los resultados de las pruebas se muestran a continuación:
 
 * Tiempo de ejecución
 
-![imagen2](.\TiempoEjecucionC.png)
+![imagen2](.\TiemposEjecucion.png)
 
 * Accesos a memoria 
 
