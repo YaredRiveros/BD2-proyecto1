@@ -360,7 +360,7 @@ class ExtendibleHash{
                 recordsFile.seekg(bucket.posNextBucket, ios::beg);
                 posBucket = recordsFile.tellg();
                 recordsFile.read((char*)&bucket, sizeof(Bucket)); 
-                break;
+                // break;
             } //si no encontro el registro al final del while, entonces nos quedamos en el ultimo bucket
 
             if(!encadenamiento)
