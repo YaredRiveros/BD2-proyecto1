@@ -92,7 +92,7 @@ Después de cargar el archivo CSV, el programa presentará un menú  en consola 
 
 ## Compilación y ejecución
 
-  loading...
+Se compila main.cpp desde terminal.
 
 ## Dependencias
 
