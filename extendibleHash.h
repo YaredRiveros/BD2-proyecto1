@@ -9,8 +9,8 @@
 
 using namespace std;
 
-const int globalDepth = 3;
-const int maxRecords = 4; //Cantidad máxima de registros por bucket
+const int globalDepth = 10;
+const int maxRecords = 100; //Cantidad máxima de registros por bucket
 
 //No necesito clase Index porque solo necesito guardar la posición del bucket en records.bin
 
@@ -231,6 +231,10 @@ class ExtendibleHash{
 
         indexFile.close();
         recordsFile0.close();
+    }
+
+    ExtendibleHash(){
+        
     }
 
     ~ExtendibleHash(){}
@@ -798,14 +802,17 @@ class ExtendibleHash{
     void LoadCsv(const string& FileName){
         ifstream file(FileName);
         string line;
-
+        cout << "LoadCsv en Extendible Hash" << endl;
         while(getline(file,line)){
             stringstream ss(line);
             long int id;
             string nombre, correo, carrera;
             int ciclo, codigo;
             getline(ss, line, ',');
+            cout << "antes del STOL" << endl;
+            cout << line << endl;
             id = stol(line);
+            cout << "luego del STOL" << endl;
             getline(ss, nombre, ',');
             getline(ss, correo, ',');
             ss >> ciclo;
@@ -836,6 +843,21 @@ class ExtendibleHash{
             file.close();
         }
 
+    }
+
+    void displayAll(){
+        fstream recordsFile;
+        recordsFile.open(recordsFileName, ios::binary | ios::in);
+        Bucket bucket;
+        recordsFile.read((char*)&bucket, sizeof(Bucket));
+        while(recordsFile){
+            cout << "Bucket: " << endl;
+            for(int i=0; i<bucket.nRecords; i++){
+                bucket.records[i].display();
+            }
+            recordsFile.read((char*)&bucket, sizeof(Bucket));
+        }
+        recordsFile.close();
     }
 
 };

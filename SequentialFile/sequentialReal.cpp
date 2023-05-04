@@ -4,10 +4,13 @@
 #include <sstream>
 #include <vector>
 #include <filesystem>
+#include <algorithm>
 
 
 using namespace std;
-struct Record{
+
+
+struct RecordSequential{
     long int id;
     char nombre[20];
     char correo[20];
@@ -17,7 +20,7 @@ struct Record{
 
     public:
     bool deleted = false;
-    Record(){
+    RecordSequential(){
         strcpy(nombre, "");
         strcpy(correo, "");
         ciclo = 0;
@@ -26,7 +29,7 @@ struct Record{
         
     }
 
-    Record(long int id, const char* nombre, const char* correo, int ciclo, const char* carrera, int codigo){
+    RecordSequential(long int id, const char* nombre, const char* correo, int ciclo, const char* carrera, int codigo){
         this->id = id;
         strcpy(this->nombre, nombre);
         strcpy(this->correo, correo);
@@ -43,19 +46,19 @@ struct Record{
     std::cout << "Codigo: " << codigo << std::endl;
 }
 
-    ~Record(){}
+    ~RecordSequential(){}
 
 };
 
 
-bool operator<(const Record& p1, const Record& p2) {
+bool operator<(const RecordSequential& p1, const RecordSequential& p2) {
     return p1.id < p2.id;
 }
 
-std::vector<Record> readCSV(const std::string &filename) {
+std::vector<RecordSequential> readCSV(const std::string &filename) {
     std::ifstream infile(filename);
     std::string line;
-    std::vector<Record> records;
+    std::vector<RecordSequential> records;
 
     while (std::getline(infile, line)) {
         std::stringstream ss(line);
@@ -70,43 +73,43 @@ std::vector<Record> readCSV(const std::string &filename) {
         int ciclo = std::stoi(tokens[3]);
         int codigo = std::stoi(tokens[5]);
 
-        Record record(id, tokens[1].c_str(), tokens[2].c_str(), ciclo, tokens[4].c_str(), codigo);
+        RecordSequential record(id, tokens[1].c_str(), tokens[2].c_str(), ciclo, tokens[4].c_str(), codigo);
         records.push_back(record);
     }
 
     return records;
 }
-void writeRecord(std::ofstream &out, const Record &record) {
-    out.write((char *)&record, sizeof(Record));
+void writeRecordSequential(std::ofstream &out, const RecordSequential &record) {
+    out.write((char *)&record, sizeof(RecordSequential));
 }
 
-bool readRecord(std::ifstream &in, Record &record) {
-    in.read((char *)&record, sizeof(Record));
-    return in.gcount() == sizeof(Record);
+bool readRecordSequential(std::ifstream &in, RecordSequential &record) {
+    in.read((char *)&record, sizeof(RecordSequential));
+    return in.gcount() == sizeof(RecordSequential);
 }
-void mergeFiles(const std::string &mainFilename, const std::string &auxFilename) {
+void mergeFilesSequential(const std::string &mainFilename, const std::string &auxFilename) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ifstream auxIn(auxFilename, std::ios::binary);
     std::ofstream mergedOut("merged.dat", std::ios::binary);
 
-    Record mainRecord, auxRecord;
-    bool mainEnd = !readRecord(mainIn, mainRecord);
-    bool auxEnd = !readRecord(auxIn, auxRecord);
+    RecordSequential mainRecord, auxRecord;
+    bool mainEnd = !readRecordSequential(mainIn, mainRecord);
+    bool auxEnd = !readRecordSequential(auxIn, auxRecord);
 
     while (!mainEnd || !auxEnd) {
         if (mainEnd) {
-            writeRecord(mergedOut, auxRecord);
-            auxEnd = !readRecord(auxIn, auxRecord);
+            writeRecordSequential(mergedOut, auxRecord);
+            auxEnd = !readRecordSequential(auxIn, auxRecord);
         } else if (auxEnd) {
-            writeRecord(mergedOut, mainRecord);
-            mainEnd = !readRecord(mainIn, mainRecord);
+            writeRecordSequential(mergedOut, mainRecord);
+            mainEnd = !readRecordSequential(mainIn, mainRecord);
         } else {
             if (mainRecord < auxRecord) {
-                writeRecord(mergedOut, mainRecord);
-                mainEnd = !readRecord(mainIn, mainRecord);
+                writeRecordSequential(mergedOut, mainRecord);
+                mainEnd = !readRecordSequential(mainIn, mainRecord);
             } else {
-                writeRecord(mergedOut, auxRecord);
-                auxEnd = !readRecord(auxIn, auxRecord);
+                writeRecordSequential(mergedOut, auxRecord);
+                auxEnd = !readRecordSequential(auxIn, auxRecord);
             }
         }
     }
@@ -121,10 +124,10 @@ void mergeFiles(const std::string &mainFilename, const std::string &auxFilename)
 }
 long findMaxId(const std::string &mainFilename) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
-    Record currentRecord;
+    RecordSequential currentRecord;
     long maxId = -1;
 
-    while (readRecord(mainIn, currentRecord)) {
+    while (readRecordSequential(mainIn, currentRecord)) {
         if (currentRecord.id > maxId) {
             maxId = currentRecord.id;
         }
@@ -134,37 +137,37 @@ long findMaxId(const std::string &mainFilename) {
     return maxId;
 }
 
-Record *searchRecord(long id, const std::string &mainFilename, const std::string &auxFilename) {
+RecordSequential *searchRecordSequential(long id, const std::string &mainFilename, const std::string &auxFilename) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ifstream auxIn(auxFilename, std::ios::binary);
 
-    Record currentRecord;
+    RecordSequential currentRecord;
 
     // Search in the auxiliary file first
-    while (readRecord(auxIn, currentRecord)) {
+    while (readRecordSequential(auxIn, currentRecord)) {
         if (currentRecord.id == id) {
             auxIn.close();
             mainIn.close();
-            return new Record(currentRecord);
+            return new RecordSequential(currentRecord);
         }
     }
 
     // If not found in the auxiliary file, perform binary search in the main file
     long left = 0;
     long fileSize = mainIn.tellg();
-    long right = fileSize / sizeof(Record) - 1;
+    long right = fileSize / sizeof(RecordSequential) - 1;
     long mid;
 
     while (left <= right) {
         mid = left + (right - left) / 2;
 
-        mainIn.seekg(mid * sizeof(Record), std::ios::beg);
-        readRecord(mainIn, currentRecord);
+        mainIn.seekg(mid * sizeof(RecordSequential), std::ios::beg);
+        readRecordSequential(mainIn, currentRecord);
 
         if (currentRecord.id == id) {
             mainIn.close();
             auxIn.close();
-            return new Record(currentRecord);
+            return new RecordSequential(currentRecord);
         }
 
         if (currentRecord.id < id) {
@@ -180,14 +183,14 @@ Record *searchRecord(long id, const std::string &mainFilename, const std::string
 }
 
 
-vector<Record> search(long id, const std::string &mainFilename, const std::string &auxFilename) {
+vector<RecordSequential> searchSequential(long id, const std::string &mainFilename, const std::string &auxFilename) {
 std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ifstream auxIn(auxFilename, std::ios::binary);
-    vector<Record> result;
-    Record currentRecord;
+    vector<RecordSequential> result;
+    RecordSequential currentRecord;
 
     // Search in the auxiliary file
-    while (readRecord(auxIn, currentRecord)) {
+    while (readRecordSequential(auxIn, currentRecord)) {
         if (currentRecord.id == id  && !currentRecord.deleted) {
             result.push_back(currentRecord);
         }
@@ -197,12 +200,12 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
     mainIn.seekg(0, std::ios::end);
     long fileSize = mainIn.tellg();
     long left = 0;
-    long right = fileSize / sizeof(Record) - 1;
+    long right = fileSize / sizeof(RecordSequential) - 1;
 
     while (left <= right) {
         long middle = left + (right - left) / 2;
-        mainIn.seekg(middle * sizeof(Record), std::ios::beg);
-        readRecord(mainIn, currentRecord);
+        mainIn.seekg(middle * sizeof(RecordSequential), std::ios::beg);
+        readRecordSequential(mainIn, currentRecord);
 
         if (currentRecord.id == id) {
             result.push_back(currentRecord);
@@ -210,8 +213,8 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
             // Check for duplicates on the left side
             long leftDuplicate = middle - 1;
             while (leftDuplicate >= left) {
-                mainIn.seekg(leftDuplicate * sizeof(Record), std::ios::beg);
-                readRecord(mainIn, currentRecord);
+                mainIn.seekg(leftDuplicate * sizeof(RecordSequential), std::ios::beg);
+                readRecordSequential(mainIn, currentRecord);
                 if (currentRecord.id == id  && !currentRecord.deleted) {
                     result.push_back(currentRecord);
                 } else {
@@ -223,8 +226,8 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
             // Check for duplicates on the right side
             long rightDuplicate = middle + 1;
             while (rightDuplicate <= right) {
-                mainIn.seekg(rightDuplicate * sizeof(Record), std::ios::beg);
-                readRecord(mainIn, currentRecord);
+                mainIn.seekg(rightDuplicate * sizeof(RecordSequential), std::ios::beg);
+                readRecordSequential(mainIn, currentRecord);
                 if (currentRecord.id == id) {
                     result.push_back(currentRecord);
                 } else {
@@ -249,13 +252,13 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
 
 }
 
-vector<Record> searchRange(long beginId, long endId, const std::string &mainFilename, const std::string &auxFilename) {
-    vector<Record> results;
-    Record currentRecord;
+vector<RecordSequential> searchRangeSequential(long beginId, long endId, const std::string &mainFilename, const std::string &auxFilename) {
+    vector<RecordSequential> results;
+    RecordSequential currentRecord;
 
     // Search in the auxiliary file first
     std::ifstream auxIn(auxFilename, std::ios::binary);
-    while (readRecord(auxIn, currentRecord)) {
+    while (readRecordSequential(auxIn, currentRecord)) {
         if (currentRecord.id >= beginId && currentRecord.id <= endId && !currentRecord.deleted) {
             results.push_back(currentRecord);
         }
@@ -267,20 +270,20 @@ vector<Record> searchRange(long beginId, long endId, const std::string &mainFile
     long begin = 0;
     long mid;
     mainIn.seekg(0, std::ios::end);
-    long end = mainIn.tellg() / sizeof(Record) - 1;
+    long end = mainIn.tellg() / sizeof(RecordSequential) - 1;
 
     while (begin <= end) {
         mid = begin + (end - begin) / 2;
-        mainIn.seekg(mid * sizeof(Record));
-        readRecord(mainIn, currentRecord);
+        mainIn.seekg(mid * sizeof(RecordSequential));
+        readRecordSequential(mainIn, currentRecord);
 
         if (currentRecord.id >= beginId && currentRecord.id <= endId && !currentRecord.deleted) {
             results.push_back(currentRecord);
             // Search for records with the same ID in the left half
             long left = mid - 1;
             while (left >= begin) {
-                mainIn.seekg(left * sizeof(Record));
-                readRecord(mainIn, currentRecord);
+                mainIn.seekg(left * sizeof(RecordSequential));
+                readRecordSequential(mainIn, currentRecord);
                 if (currentRecord.id >= beginId && currentRecord.id <= endId && !currentRecord.deleted) {
                     results.push_back(currentRecord);
                 } else {
@@ -292,8 +295,8 @@ vector<Record> searchRange(long beginId, long endId, const std::string &mainFile
             // Search for records with the same ID in the right half
             long right = mid + 1;
             while (right <= end) {
-                mainIn.seekg(right * sizeof(Record));
-                readRecord(mainIn, currentRecord);
+                mainIn.seekg(right * sizeof(RecordSequential));
+                readRecordSequential(mainIn, currentRecord);
                 if (currentRecord.id >= beginId && currentRecord.id <= endId && !currentRecord.deleted) {
                     results.push_back(currentRecord);
                 } else {
@@ -316,36 +319,36 @@ vector<Record> searchRange(long beginId, long endId, const std::string &mainFile
 }
 
 
-void insertRecord(const Record &record, const std::string &mainFilename, const std::string &auxFilename, int &K) {
+void insertRecordSequential(const RecordSequential &record, const std::string &mainFilename, const std::string &auxFilename, int &K) {
     long maxId = findMaxId(mainFilename);
-    bool recordExists = searchRecord(record.id, mainFilename, auxFilename) != nullptr;
+    bool recordExists = searchRecordSequential(record.id, mainFilename, auxFilename) != nullptr;
 
     if (recordExists && record.id < maxId) {
         std::ofstream auxOut(auxFilename, std::ios::binary | std::ios::app);
-        writeRecord(auxOut, record);
+        writeRecordSequential(auxOut, record);
         auxOut.close();
 
         if (++K >= 2) {
-            mergeFiles(mainFilename, auxFilename);
+            mergeFilesSequential(mainFilename, auxFilename);
             K = 0;
         }
     } else {
         std::ifstream mainIn(mainFilename, std::ios::binary);
         std::ofstream mainOut("temp.dat", std::ios::binary);
 
-        Record currentRecord;
+        RecordSequential currentRecord;
         bool inserted = false;
 
-        while (readRecord(mainIn, currentRecord)) {
+        while (readRecordSequential(mainIn, currentRecord)) {
             if (!inserted && record < currentRecord) {
-                writeRecord(mainOut, record);
+                writeRecordSequential(mainOut, record);
                 inserted = true;
             }
-            writeRecord(mainOut, currentRecord);
+            writeRecordSequential(mainOut, currentRecord);
         }
 
         if (!inserted) {
-            writeRecord(mainOut, record);
+            writeRecordSequential(mainOut, record);
         }
 
         mainIn.close();
@@ -358,22 +361,22 @@ void insertRecord(const Record &record, const std::string &mainFilename, const s
 
 
 
-void deleteRecord(long id, const std::string &mainFilename, const std::string &auxFilename) {
+void deleteRecordSequential(long id, const std::string &mainFilename, const std::string &auxFilename) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ofstream mainOut("temp.dat", std::ios::binary);
 
-    vector<Record> recordsToDelete = search(id, mainFilename, auxFilename);
+    vector<RecordSequential> recordsToDelete = searchSequential(id, mainFilename, auxFilename);
     if (recordsToDelete.empty()) {
-        std::cout << "Record not found." << std::endl;
+        std::cout << "RecordSequential not found." << std::endl;
         mainIn.close();
         mainOut.close();
         return;
     }
 
-    Record currentRecord;
+    RecordSequential currentRecord;
     bool found = false;
 
-    while (readRecord(mainIn, currentRecord)) {
+    while (readRecordSequential(mainIn, currentRecord)) {
         bool shouldWrite = true;
         for (const auto &recordToDelete : recordsToDelete) {
             if (currentRecord.id == recordToDelete.id) {
@@ -385,7 +388,7 @@ void deleteRecord(long id, const std::string &mainFilename, const std::string &a
         }
 
         if (shouldWrite) {
-            writeRecord(mainOut, currentRecord);
+            writeRecordSequential(mainOut, currentRecord);
         }
     }
 
@@ -396,16 +399,16 @@ void deleteRecord(long id, const std::string &mainFilename, const std::string &a
     std::rename("temp.dat", mainFilename.c_str());
 
     if (!found) {
-        std::cout << "Record not found." << std::endl;
+        std::cout << "RecordSequential not found." << std::endl;
     } else {
-        std::cout << "Record(s) deleted." << std::endl;
+        std::cout << "RecordSequential(s) deleted." << std::endl;
     }
 }
-void displayAllRecords(const std::string &mainFilename) {
+void displayAllRecordsSequential(const std::string &mainFilename) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
-    Record currentRecord;
+    RecordSequential currentRecord;
 
-    while (readRecord(mainIn, currentRecord)) {
+    while (readRecordSequential(mainIn, currentRecord)) {
         currentRecord.display();
         std::cout << "------------------------" << std::endl;
     }
@@ -418,12 +421,10 @@ int main() {
     std::string auxFilename = "aux.dat";
     int K = 0;
     long beginId, endId;
-    if (!std::filesystem::exists(mainFilename)) {
-        std::vector<Record> records = readCSV("data.csv");
+    std::vector<RecordSequential> records = readCSV("data.csv");
         for (const auto &record : records) {
-            insertRecord(record, mainFilename, auxFilename, K);
+            insertRecordSequential(record, mainFilename, auxFilename, K);
         }
-    }
 
     while (true) {
         std::cout << "1. Buscar" << std::endl;
@@ -443,7 +444,7 @@ int main() {
                 std::cout << "Ingrese el ID: ";
                 std::cin >> id;
 
-                 vector<Record> records = search(id, mainFilename, auxFilename);
+                 vector<RecordSequential> records = searchSequential(id, mainFilename, auxFilename);
                   if (!records.empty()) {
                       for (const auto &record : records) {
                           record.display();
@@ -458,11 +459,11 @@ int main() {
                 long id;
                 std::cout << "Ingrese el ID para eliminar: ";
                 std::cin >> id;
-                deleteRecord(id, mainFilename, auxFilename);
+                deleteRecordSequential(id, mainFilename, auxFilename);
                 break;
             }
             case 3: {
-                mergeFiles(mainFilename, auxFilename);
+                mergeFilesSequential(mainFilename, auxFilename);
                 break;
             }
             case 4:{
@@ -488,11 +489,11 @@ int main() {
                 std::cout << "Ingrese el codigo: ";
                 std::cin >> codigo;
 
-        Record record(id, nombre, correo, ciclo, carrera, codigo);
-        insertRecord(record, mainFilename, auxFilename,K);
+        RecordSequential record(id, nombre, correo, ciclo, carrera, codigo);
+        insertRecordSequential(record, mainFilename, auxFilename,K);
         break;}
         case 5: {
-        displayAllRecords(mainFilename);
+        displayAllRecordsSequential(mainFilename);
         break;
     }
     case 6:{
@@ -500,9 +501,9 @@ int main() {
                 std::cin >> beginId;
                 std::cout << "Ingrese el ID final: ";
                 std::cin >> endId;
-                std::vector<Record> records = searchRange(beginId, endId, mainFilename, auxFilename);
+                std::vector<RecordSequential> records = searchRangeSequential(beginId, endId, mainFilename, auxFilename);
                 // Sort the records by their ID
-                std::sort(records.begin(), records.end(), [](const Record &a, const Record &b) {
+                std::sort(records.begin(), records.end(), [](const RecordSequential &a, const RecordSequential &b) {
                     return a.id < b.id;
                 });
                 for (const auto &record : records) {

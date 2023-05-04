@@ -5,7 +5,6 @@
 #include <vector>
 #include <filesystem>
 
-
 using namespace std;
 struct Record{
     long int id;
@@ -426,47 +425,35 @@ vector<string> split(const string &s, char delimiter) {
     return tokens;
 }
 
-void parseSQL(const string &query, const string &mainFilename, const string &auxFilename, int &K) {
-    string queryLower = query;
-    transform(queryLower.begin(), queryLower.end(), queryLower.begin(), ::tolower);
-
-    vector<string> tokens = split(queryLower, ' ');
-
-    if (tokens.empty()) {
-        cout << "Invalid query" << endl;
-        return;
-    }
-
-    if (tokens[0] == "select") {
-        if (tokens[1] == "*") {
-            if (tokens[2] == "from" && tokens[3] == "seqfile") {
-                displayAllRecords(mainFilename);
-            } else {
-                cout << "Invalid query" << endl;
-            }
-        } else {
-            cout << "Invalid query" << endl;
-        }
-    } else if (tokens[0] == "insert") {
-        
-    } else if (tokens[0] == "delete") {
-        
-    } else {
-        cout << "Invalid query" << endl;
-    }
-}
 #include <regex>
 
 long parseDeleteSql(const std::string &sql) {
     std::regex deleteRegex(R"(DELETE\s+FROM\s+SeqFile\s+WHERE\s+id\s*=\s*(\d+))", std::regex_constants::icase);
     std::smatch matches;
 
-    if (std::regex_search(sql, matches, deleteRegex)) {
+    if (std::regex_search(sql, matches, deleteRegex)) { //Estoy buscando en sql, matches es donde se guarda el resultado, deleteRegex es la expresion regular
+        cout << "match hallado: " << matches[1].str() << endl;
         return std::stol(matches[1].str());
     } else {
         throw std::runtime_error("Invalid SQL syntax for DELETE.");
     }
 }
+
+
+
+pair<int,int> parseSelectWhere(const std::string &sql) {
+    std::regex selectRegex(R"(SELECT\s+id\s+FROM\s+SeqFile\s+WHERE\s+id\s+BETWEEN\s+(\d+)\s+AND\s+(\d+))", std::regex_constants::icase);
+    std::smatch matches;
+
+    if (std::regex_search(sql, matches, selectRegex)) {
+        return {std::stoi(matches[1].str()), std::stoi(matches[2].str())};
+    } else {
+        throw std::runtime_error("Invalid SQL syntax for SELECT.");
+    }
+}
+
+
+
 class Database {
 private:
     std::string mainFilename;
@@ -482,20 +469,44 @@ public:
         long id = parseDeleteSql(sql);
         ::deleteRecord(id, mainFilename, auxFilename);
     }
+
+    // void insertRecord(const std::string &sql) {
+    //     long id = parseInsertSql(sql);
+        
+    //     ::insertRecord(id, mainFilename, auxFilename);
+    // }
+
+    void selectAllRecords(const std::string &sql) {
+        displayAllRecords(mainFilename);
+    }
+
+    void selectWhere(const std::string &sql) {
+        pair<int,int> ids = parseSelectWhere(sql);
+        vector<Record> records = searchRange(ids.first, ids.second, mainFilename, auxFilename);
+        for (const auto &record : records) {
+            record.display();
+            std::cout << "------------------------" << std::endl;
+        }
+    }
 };
 
 
 int main() {
+
     std::string mainFilename = "main2.dat";
+    fstream mainIn(mainFilename, ios::out | ios::binary); 
+    mainIn.close();
     std::string auxFilename = "aux2.dat";
+    fstream auxFile(auxFilename, ios::out | ios::binary);
+    auxFile.close();
     int K = 0;
     long beginId, endId;
-    if (!std::filesystem::exists(mainFilename)) {
-        std::vector<Record> records = readCSV("DataBase.csv");
+    // if (!std::filesystem::exists(mainFilename)) {
+        std::vector<Record> records = readCSV("data.csv");
         for (const auto &record : records) {
             insertRecord(record, mainFilename, auxFilename, K);
         }
-    }
+    // }
     // while (true) {
     //     cout << "Ingresa tu query (o 'exit' para salir): ";
     //     string query;
@@ -518,14 +529,22 @@ int main() {
         std::cerr << "Error: " << e.what() << std::endl;
     }
     //displayAllRecords(mainFilename);
-    vector<Record> records = search(5, mainFilename, auxFilename);
-                  if (!records.empty()) {
-                      for (const auto &record : records) {
-                          record.display();
-                          std::cout << std::endl; // Separate records with a blank line
-                      }
-                  } else {
-                      std::cout << "Registro no encontrado." << std::endl;
-                  }
+    vector<Record> records2 = search(5, mainFilename, auxFilename);
+    if (!records2.empty()) {
+        for (const auto &record : records2) {
+            record.display();
+            std::cout << std::endl; // Separate records with a blank line
+        }
+    } else {
+        std::cout << "Registro no encontrado." << std::endl;
+    }
+
+
+    cout << "------------------SELECT--------------------" << endl;
+    db.selectAllRecords("SELECT * FROM SeqFile");
+
+    cout << "------------------SELECT WHERE--------------------" << endl;
+    db.selectWhere("SELECT id FROM SeqFile WHERE id BETWEEN 1 AND 5");
+
     return 0;
 }
