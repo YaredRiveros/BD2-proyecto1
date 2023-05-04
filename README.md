@@ -74,8 +74,15 @@ La complejidad de todas estas operaciones es O(k), donde k es la cantidad máxim
 
 
 ## Resultados experimentales
+Se realizo una prueba de rendimiento para cada una de las implementaciones. Para cada prueba, se utilizó un dataset de 500,000 registros. Se realizaron 5000 operaciones de inserción, 3 operaciones de búsqueda. Los resultados de las pruebas se muestran a continuación:
 
-  loading...
+* Tiempo de ejecución
+
+![imagen2](.\TiempoEjecucionC.png)
+
+* Accesos a memoria 
+
+![imagen3](.\NaccesosC.png)
 
 ## Uso
 

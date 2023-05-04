@@ -85,7 +85,7 @@ bool readRecord(std::ifstream &in, Record &record) {
     in.read((char *)&record, sizeof(Record));
     return in.gcount() == sizeof(Record);
 }
-void mergeFiles(const std::string &mainFilename, const std::string &auxFilename) {
+void mergeFiles(const std::string &mainFilename, const std::string &auxFilename,int &cont) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ifstream auxIn(auxFilename, std::ios::binary);
     std::ofstream mergedOut("merged.dat", std::ios::binary);
@@ -93,21 +93,26 @@ void mergeFiles(const std::string &mainFilename, const std::string &auxFilename)
     Record mainRecord, auxRecord;
     bool mainEnd = !readRecord(mainIn, mainRecord);
     bool auxEnd = !readRecord(auxIn, auxRecord);
+    cont += 2;
 
     while (!mainEnd || !auxEnd) {
         if (mainEnd) {
             writeRecord(mergedOut, auxRecord);
             auxEnd = !readRecord(auxIn, auxRecord);
+            cont+=2;
         } else if (auxEnd) {
             writeRecord(mergedOut, mainRecord);
             mainEnd = !readRecord(mainIn, mainRecord);
+            cont+=2;
         } else {
             if (mainRecord < auxRecord) {
                 writeRecord(mergedOut, mainRecord);
                 mainEnd = !readRecord(mainIn, mainRecord);
+                cont+=2;
             } else {
                 writeRecord(mergedOut, auxRecord);
                 auxEnd = !readRecord(auxIn, auxRecord);
+                cont+=2;
             }
         }
     }
@@ -135,7 +140,7 @@ long findMaxId(const std::string &mainFilename) {
     return maxId;
 }
 
-Record *searchRecord(long id, const std::string &mainFilename, const std::string &auxFilename) {
+Record *searchRecord(long id, const std::string &mainFilename, const std::string &auxFilename, int &count) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ifstream auxIn(auxFilename, std::ios::binary);
 
@@ -143,6 +148,7 @@ Record *searchRecord(long id, const std::string &mainFilename, const std::string
 
     // Search in the auxiliary file first
     while (readRecord(auxIn, currentRecord)) {
+        count++;
         if (currentRecord.id == id) {
             auxIn.close();
             mainIn.close();
@@ -160,6 +166,7 @@ Record *searchRecord(long id, const std::string &mainFilename, const std::string
         mid = left + (right - left) / 2;
 
         mainIn.seekg(mid * sizeof(Record), std::ios::beg);
+        count++;
         readRecord(mainIn, currentRecord);
 
         if (currentRecord.id == id) {
@@ -181,7 +188,7 @@ Record *searchRecord(long id, const std::string &mainFilename, const std::string
 }
 
 
-vector<Record> search(long id, const std::string &mainFilename, const std::string &auxFilename) {
+vector<Record> search(long id, const std::string &mainFilename, const std::string &auxFilename,int &count) {
 std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ifstream auxIn(auxFilename, std::ios::binary);
     vector<Record> result;
@@ -189,6 +196,7 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
 
     // Search in the auxiliary file
     while (readRecord(auxIn, currentRecord)) {
+        count++;
         if (currentRecord.id == id  && !currentRecord.deleted) {
             result.push_back(currentRecord);
         }
@@ -203,6 +211,7 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
     while (left <= right) {
         long middle = left + (right - left) / 2;
         mainIn.seekg(middle * sizeof(Record), std::ios::beg);
+        count++;
         readRecord(mainIn, currentRecord);
 
         if (currentRecord.id == id) {
@@ -212,6 +221,7 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
             long leftDuplicate = middle - 1;
             while (leftDuplicate >= left) {
                 mainIn.seekg(leftDuplicate * sizeof(Record), std::ios::beg);
+                count++;
                 readRecord(mainIn, currentRecord);
                 if (currentRecord.id == id  && !currentRecord.deleted) {
                     result.push_back(currentRecord);
@@ -225,6 +235,7 @@ std::ifstream mainIn(mainFilename, std::ios::binary);
             long rightDuplicate = middle + 1;
             while (rightDuplicate <= right) {
                 mainIn.seekg(rightDuplicate * sizeof(Record), std::ios::beg);
+                count++;
                 readRecord(mainIn, currentRecord);
                 if (currentRecord.id == id) {
                     result.push_back(currentRecord);
@@ -317,17 +328,18 @@ vector<Record> searchRange(long beginId, long endId, const std::string &mainFile
 }
 
 
-void insertRecord(const Record &record, const std::string &mainFilename, const std::string &auxFilename, int &K) {
+void insertRecord(const Record &record, const std::string &mainFilename, const std::string &auxFilename, int &K,int &cont) {
     long maxId = findMaxId(mainFilename);
-    bool recordExists = searchRecord(record.id, mainFilename, auxFilename) != nullptr;
+    bool recordExists = searchRecord(record.id, mainFilename, auxFilename,cont) != nullptr;
 
     if (recordExists && record.id < maxId) {
         std::ofstream auxOut(auxFilename, std::ios::binary | std::ios::app);
+        cont++;
         writeRecord(auxOut, record);
         auxOut.close();
 
         if (++K >= 2) {
-            mergeFiles(mainFilename, auxFilename);
+            mergeFiles(mainFilename, auxFilename,cont);
             K = 0;
         }
     } else {
@@ -339,13 +351,16 @@ void insertRecord(const Record &record, const std::string &mainFilename, const s
 
         while (readRecord(mainIn, currentRecord)) {
             if (!inserted && record < currentRecord) {
+                cont++;
                 writeRecord(mainOut, record);
                 inserted = true;
             }
+            cont++;
             writeRecord(mainOut, currentRecord);
         }
 
         if (!inserted) {
+            cont++;
             writeRecord(mainOut, record);
         }
 
@@ -362,8 +377,8 @@ void insertRecord(const Record &record, const std::string &mainFilename, const s
 void deleteRecord(long id, const std::string &mainFilename, const std::string &auxFilename) {
     std::ifstream mainIn(mainFilename, std::ios::binary);
     std::ofstream mainOut("temp.dat", std::ios::binary);
-
-    vector<Record> recordsToDelete = search(id, mainFilename, auxFilename);
+    int cont=0;
+    vector<Record> recordsToDelete = search(id, mainFilename, auxFilename,cont);
     if (recordsToDelete.empty()) {
         std::cout << "Record not found." << std::endl;
         mainIn.close();
@@ -420,41 +435,56 @@ int main() {
     int K = 0;
     long beginId, endId;
 
+    cout << "--------------Inserción--------------" << endl;
+
     //Inserción
     chrono::time_point<std::chrono::system_clock>inicio,fin;
     inicio = chrono::high_resolution_clock::now();
     cout << "Iniciando inserción..." << endl;
     std::vector<Record> records = readCSV("DataBase.csv");
+    int cont = 0;
     for (const auto &record : records) {
-        insertRecord(record, mainFilename, auxFilename, K);
+        insertRecord(record, mainFilename, auxFilename, K,cont);
     }
     cout << "Inserción finalizada" << endl;
     fin = chrono::high_resolution_clock::now();
 
+    cout << "Número de accesos a memoria secundaria: " << cont << endl;
+
     std::chrono::duration<double,std::milli>t=fin-inicio;
     cout << "Tiempo Inserción: " << t.count() << " ms"<<endl;
 
+    cout << "--------------Búsqueda--------------" << endl;
+
     //Búsqueda
+    int count = 0;
     inicio = chrono::high_resolution_clock::now();
-    vector<Record> recordsB = search(1250, mainFilename, auxFilename);
+    vector<Record> recordsB = search(1250, mainFilename, auxFilename,count);
+    for (const auto &record : recordsB) {
+        record.display();
+        std::cout << "------------------------" << std::endl;
+    }
+    int total = 0;
+    total += count;
+    count = 0;
+
+
+    recordsB = search(2500, mainFilename, auxFilename,count);
     for (const auto &record : recordsB) {
         record.display();
         std::cout << "------------------------" << std::endl;
     }
 
-    recordsB = search(2500, mainFilename, auxFilename);
+    total += count;
+    count = 0;
+    recordsB = search(5000, mainFilename, auxFilename,count);
     for (const auto &record : recordsB) {
         record.display();
         std::cout << "------------------------" << std::endl;
     }
-
-    recordsB = search(5000, mainFilename, auxFilename);
-    for (const auto &record : recordsB) {
-        record.display();
-        std::cout << "------------------------" << std::endl;
-    }
+    total += count;
     fin = chrono::high_resolution_clock::now();
-
+    cout << "Número de accesos a memoria secundaria: " << total << endl;
     t=fin-inicio;
     cout << "Tiempo Búsqueda: " << t.count() << " ms"<<endl;
 
