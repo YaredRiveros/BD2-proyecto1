@@ -78,11 +78,11 @@ Se realizo una prueba de rendimiento para cada una de las implementaciones. Para
 
 * Tiempo de ejecución
 
-![imagen2](.\TiempoEjecucionC.png)
+![imagen2](TiempoEjecucionC.png)
 
 * Accesos a memoria 
 
-![imagen3](.\NaccesosC.png)
+![imagen3](NaccesosC.png)
 
 ## Uso
 
