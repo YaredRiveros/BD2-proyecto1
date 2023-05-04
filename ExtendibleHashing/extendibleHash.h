@@ -531,7 +531,7 @@ class ExtendibleHash{
                         // cout << "pos del archivo: " << indexFile.tellg() << endl;
                         indexFile.read((char*)&indexAux, sizeof(Indice));
                         // cout << "IndexAux.pos: " ;
-                        printCharArray(indexAux.binario, globalDepth);
+                        //printCharArray(indexAux.binario, globalDepth);
                         indices.push_back(indexAux);
                     }
                     indexFile.close();

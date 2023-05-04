@@ -21,7 +21,7 @@ int main(){
 
     eHash.InsertRecordCSV(csv_file_name, r);
 
-    eHash.muestraData();
+    //eHash.muestraData();
 
     return 0;    
 
