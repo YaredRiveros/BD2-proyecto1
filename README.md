@@ -76,7 +76,7 @@ La complejidad de todas estas operaciones es O(k), donde k es la cantidad máxim
 
 
 ## Resultados experimentales
-Se realizo una prueba de rendimiento para cada una de las implementaciones. Para cada prueba, se utilizó un dataset de 500,000 registros. Se realizaron 5000 operaciones de inserción, 11 operaciones de búsqueda con ID empezando desde 5000 disminuyendo de mitad en mitad hasta 1.Los resultados de las pruebas se muestran a continuación:
+Se realizo una prueba de rendimiento para cada una de las implementaciones. Para cada prueba, se utilizó un dataset de 500,000 registros. Se realizaron 5000 operaciones de inserción, 11 operaciones de búsqueda con ID empezando desde 5000 disminuyendo de mitad en mitad hasta 1. Puede encontrar el código de la experimentación en los archivos llamados "ComparacionT.cpp" y "Comparacioon.cpp" en las carpetas SequentialFile y ExtendibleHashing respectivamente. Los resultados de las pruebas se muestran a continuación:
 
 * Tiempo de ejecución
 
