@@ -86,6 +86,8 @@ Se realizo una prueba de rendimiento para cada una de las implementaciones. Para
 
 ![imagen3](NaccesosC.png)
 
+Nota: Los datos para medir el tiempo de ejecución y accesos a memoria fueron obtenidos experimentando en los archivos llamados "ComparacionT.cpp" y "Comparacioon.cpp" en las carpetas SequentialFile y ExtendibleHashing respectivamente.
+
 ## Uso
 
 Después de cargar el archivo CSV, el programa presentará un menú  en consola donde el usuario puede seleccionar la implementación que desea utilizar (archivos secuenciales ordenados o hashing extensible). Una vez seleccionada la implementación, el usuario puede realizar las siguientes operaciones: buscar, eliminar y buscar por rango de ID.
