@@ -324,7 +324,7 @@ void insertRecord(const Record &record, const std::string &mainFilename, const s
         writeRecord(auxOut, record);
         auxOut.close();
 
-        if (++K >= 2) {
+        if (++K >= 13) {
             mergeFiles(mainFilename, auxFilename);
             K = 0;
         }
