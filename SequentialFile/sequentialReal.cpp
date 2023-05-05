@@ -328,7 +328,7 @@ void insertRecordSequential(const RecordSequential &record, const std::string &m
         writeRecordSequential(auxOut, record);
         auxOut.close();
 
-        if (++K >= 2) {
+        if (++K >= 13) {
             mergeFilesSequential(mainFilename, auxFilename);
             K = 0;
         }
