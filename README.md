@@ -94,7 +94,7 @@ Después de cargar el archivo CSV, el programa presentará un menú  en consola 
 
 ## Compilación y ejecución
 
-Se compila main.cpp desde terminal.
+Se compila mainHashcsv.cpp en la carpeta hash y sequentialRealparser.cpp como sequentialReal.cpp en la carpeta sequential.
 
 ## Dependencias
 
